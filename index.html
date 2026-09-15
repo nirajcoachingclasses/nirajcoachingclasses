@@ -731,7 +731,28 @@ function sendAdmission(event) {
     );
 
 }
+const studentPhoto =
+    document.getElementById("studentPhoto");
 
+const photoPreview =
+    document.getElementById("photoPreview");
+
+studentPhoto.addEventListener("change", function () {
+
+    const file = this.files[0];
+
+    if (file) {
+
+        const photoURL =
+            URL.createObjectURL(file);
+
+        photoPreview.src = photoURL;
+
+        photoPreview.style.display = "block";
+
+    }
+
+});
 </script>
 
 </body>
