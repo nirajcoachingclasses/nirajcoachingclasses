@@ -410,3 +410,307 @@
         </a>
 
     </section>
+<!-- ABOUT -->
+
+<section class="section" id="about">
+
+    <h2>About Us</h2>
+
+    <p>
+        <strong>Niraj Coaching Classes</strong>
+        is committed to providing quality education,
+        proper guidance and a supportive learning
+        environment for students.
+    </p>
+
+    <p>
+        Our goal is to help students understand
+        their subjects clearly, practise regularly
+        and achieve better results in their academic journey.
+    </p>
+
+</section>
+
+
+<!-- COURSES -->
+
+<section class="section" id="courses">
+
+    <h2>Our Courses</h2>
+
+    <p style="text-align:center;">
+        We provide coaching for
+        <strong>Classes 5 to 12</strong>.
+    </p>
+
+    <div class="courses">
+
+        <div class="course-card">
+            <div class="icon">📖</div>
+            <h3>English</h3>
+            <p>
+                Grammar, Translation,
+                Writing and Literature
+            </p>
+        </div>
+
+        <div class="course-card">
+            <div class="icon">📐</div>
+            <h3>Mathematics</h3>
+            <p>
+                Concepts, Practice,
+                Problems and Exam Preparation
+            </p>
+        </div>
+
+        <div class="course-card">
+            <div class="icon">🔬</div>
+            <h3>Science</h3>
+            <p>
+                Physics, Chemistry,
+                Biology and Important Questions
+            </p>
+        </div>
+
+        <div class="course-card">
+            <div class="icon">🌍</div>
+            <h3>Social Science</h3>
+            <p>
+                History, Geography,
+                Civics and Economics
+            </p>
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- ADMISSION -->
+
+<section class="section" id="admission">
+
+    <h2>Admission Form</h2>
+
+    <p style="text-align:center;">
+        Admission के लिए नीचे अपनी जानकारी भरें।
+        Form submit करने पर details WhatsApp पर भेजी जाएँगी।
+    </p>
+
+    <form class="admission-form"
+          onsubmit="sendAdmission(event)">
+
+        <div class="form-group">
+
+            <label for="studentName">
+                Student Name
+            </label>
+
+            <input type="text"
+                   id="studentName"
+                   placeholder="Enter student name"
+                   required>
+
+        </div>
+
+        <div class="form-group">
+
+            <label for="fatherName">
+                Father's Name
+            </label>
+
+            <input type="text"
+                   id="fatherName"
+                   placeholder="Enter father's name"
+                   required>
+
+        </div>
+
+        <div class="form-group">
+
+            <label for="mobileNumber">
+                Mobile Number
+            </label>
+
+            <input type="tel"
+                   id="mobileNumber"
+                   placeholder="Enter mobile number"
+                   pattern="[0-9]{10}"
+                   maxlength="10"
+                   required>
+
+        </div>
+
+        <div class="form-group">
+
+            <label for="studentClass">
+                Select Class
+            </label>
+
+            <select id="studentClass" required>
+
+                <option value="">
+                    Select Class
+                </option>
+
+                <option value="Class 5">Class 5</option>
+                <option value="Class 6">Class 6</option>
+                <option value="Class 7">Class 7</option>
+                <option value="Class 8">Class 8</option>
+                <option value="Class 9">Class 9</option>
+                <option value="Class 10">Class 10</option>
+                <option value="Class 11">Class 11</option>
+                <option value="Class 12">Class 12</option>
+
+            </select>
+
+        </div>
+
+        <div class="form-group">
+
+            <label for="address">
+                Address
+            </label>
+
+            <textarea id="address"
+                      placeholder="Enter your address"
+                      required></textarea>
+
+        </div>
+
+        <button type="submit"
+                class="button whatsapp submit-button">
+
+            🟢 Submit Admission on WhatsApp
+
+        </button>
+
+    </form>
+
+</section>
+
+
+<!-- CONTACT -->
+
+<section class="section" id="contact">
+
+    <h2>Contact Us</h2>
+
+    <div class="contact-box">
+
+        <p>
+            For admission and other information,
+            feel free to contact us.
+        </p>
+
+        <div class="contact-info">
+            📞 <strong>Mobile:</strong> 9431685413
+        </div>
+
+        <div class="contact-info">
+            📧 <strong>Email:</strong>
+            nsinghsolanki0@gmail.com
+        </div>
+
+        <br>
+
+        <a class="button"
+           href="tel:9431685413">
+            📞 Call Now
+        </a>
+
+        <a class="button"
+           href="mailto:nsinghsolanki0@gmail.com">
+            📧 Send Email
+        </a>
+
+        <a class="button whatsapp"
+           href="https://wa.me/919431685413"
+           target="_blank"
+           rel="noopener">
+            🟢 WhatsApp
+        </a>
+
+    </div>
+
+</section>
+
+
+<!-- FOOTER -->
+
+<footer>
+
+    <p>
+        © 2026 Niraj Coaching Classes
+    </p>
+
+    <p>
+        Quality Education for a Better Future
+    </p>
+
+</footer>
+
+
+<!-- WHATSAPP SCRIPT -->
+
+<script>
+
+function sendAdmission(event) {
+
+    event.preventDefault();
+
+    const studentName =
+        document.getElementById("studentName").value;
+
+    const fatherName =
+        document.getElementById("fatherName").value;
+
+    const mobileNumber =
+        document.getElementById("mobileNumber").value;
+
+    const studentClass =
+        document.getElementById("studentClass").value;
+
+    const address =
+        document.getElementById("address").value;
+
+    const message =
+        "🎓 *Niraj Coaching Classes - Admission Form*" +
+        "%0A%0A" +
+
+        "👨‍🎓 Student Name: " +
+        encodeURIComponent(studentName) +
+        "%0A" +
+
+        "👨 Father Name: " +
+        encodeURIComponent(fatherName) +
+        "%0A" +
+
+        "📱 Mobile Number: " +
+        encodeURIComponent(mobileNumber) +
+        "%0A" +
+
+        "📚 Class: " +
+        encodeURIComponent(studentClass) +
+        "%0A" +
+
+        "🏠 Address: " +
+        encodeURIComponent(address);
+
+    const whatsappURL =
+        "https://wa.me/919431685413" +
+        "?text=" +
+        message;
+
+    window.open(
+        whatsappURL,
+        "_blank"
+    );
+
+}
+
+</script>
+
+</body>
+
+</html>
