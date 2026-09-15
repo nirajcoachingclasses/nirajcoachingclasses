@@ -1,8 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
 
     <meta name="google-site-verification"
           content="QiRUvTaJQGluwdgGzaHatfA6LvWzbyEPVt09qlxPfAE">
@@ -72,7 +76,7 @@
             text-decoration: none;
             color: #1e3a8a;
             font-weight: bold;
-            margin: 0 12px;
+            margin: 0 10px;
             font-size: 16px;
         }
 
@@ -99,7 +103,7 @@
             margin-bottom: 25px;
         }
 
-        /* BUTTONS */
+        /* BUTTON */
 
         .button {
             display: inline-block;
@@ -124,7 +128,7 @@
             background: #1ebe5d;
         }
 
-        /* COMMON SECTION */
+        /* SECTIONS */
 
         .section {
             max-width: 1100px;
@@ -184,6 +188,54 @@
         .course-card p {
             font-size: 15px;
             margin: 0;
+        }
+
+        /* ADMISSION FORM */
+
+        .admission-form {
+            max-width: 650px;
+            margin: 25px auto 0;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: bold;
+            color: #1e3a8a;
+            margin-bottom: 7px;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 14px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 16px;
+            font-family: Arial, sans-serif;
+            outline: none;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            border-color: #2563eb;
+        }
+
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .submit-button {
+            width: 100%;
+            border: none;
+            cursor: pointer;
+            font-size: 17px;
         }
 
         /* CONTACT */
@@ -271,14 +323,18 @@
             .button {
                 display: block;
                 margin: 10px auto;
-                max-width: 250px;
+                max-width: 280px;
             }
+
         }
 
     </style>
+
 </head>
 
+
 <body>
+
 
     <!-- HEADER -->
 
@@ -288,9 +344,13 @@
              alt="Niraj Coaching Classes Logo"
              class="logo">
 
-        <h1>Niraj Coaching Classes</h1>
+        <h1>
+            Niraj Coaching Classes
+        </h1>
 
-        <p>Quality Education for a Better Future</p>
+        <p>
+            Quality Education for a Better Future
+        </p>
 
     </header>
 
@@ -299,203 +359,57 @@
 
     <nav>
 
-        <a href="#home">Home</a>
+        <a href="#home">
+            Home
+        </a>
 
-        <a href="#about">About</a>
+        <a href="#about">
+            About
+        </a>
 
-        <a href="#courses">Courses</a>
+        <a href="#courses">
+            Courses
+        </a>
 
-        <a href="#contact">Contact</a>
+        <a href="#admission">
+            Admission
+        </a>
+
+        <a href="#contact">
+            Contact
+        </a>
 
     </nav>
 
 
-    <!-- HERO -->
+    <!-- HOME -->
 
-    <section class="hero" id="home">
+    <section class="hero"
+             id="home">
 
-        <h2>Welcome to Niraj Coaching Classes</h2>
+        <h2>
+            Welcome to Niraj Coaching Classes
+        </h2>
 
         <p>
             Learn • Practice • Succeed
         </p>
 
-        <a class="button" href="#courses">
+        <a class="button"
+           href="#courses">
+
             🎓 Explore Courses
+
         </a>
 
-        <a class="button" href="#contact">
-            📞 Contact Us
+        <a class="button"
+           href="#admission">
+
+            📝 Admission
+
         </a>
 
     </section>
 
 
-    <!-- ABOUT -->
-
-    <section class="section" id="about">
-
-        <h2>About Us</h2>
-
-        <p>
-            <strong>Niraj Coaching Classes</strong> is committed to providing
-            quality education, proper guidance and a supportive learning
-            environment for students.
-        </p>
-
-        <p>
-            Our goal is to help students understand their subjects clearly,
-            practise regularly and achieve better results in their academic
-            journey.
-        </p>
-
-    </section>
-
-
-    <!-- COURSES -->
-
-    <section class="section" id="courses">
-
-        <h2>Our Courses</h2>
-
-        <p style="text-align:center;">
-            We provide coaching for
-            <strong>Classes 5 to 12</strong>.
-        </p>
-
-        <div class="courses">
-
-
-            <div class="course-card">
-
-                <div class="icon">📖</div>
-
-                <h3>English</h3>
-
-                <p>
-                    Grammar, Translation, Writing and Literature
-                </p>
-
-            </div>
-
-
-            <div class="course-card">
-
-                <div class="icon">📐</div>
-
-                <h3>Mathematics</h3>
-
-                <p>
-                    Concepts, Practice, Problems and Exam Preparation
-                </p>
-
-            </div>
-
-
-            <div class="course-card">
-
-                <div class="icon">🔬</div>
-
-                <h3>Science</h3>
-
-                <p>
-                    Physics, Chemistry, Biology and Important Questions
-                </p>
-
-            </div>
-
-
-            <div class="course-card">
-
-                <div class="icon">🌍</div>
-
-                <h3>Social Science</h3>
-
-                <p>
-                    History, Geography, Civics and Economics
-                </p>
-
-            </div>
-
-
-        </div>
-
-    </section>
-
-
-    <!-- CONTACT -->
-
-    <section class="section" id="contact">
-
-        <h2>Contact Us</h2>
-
-        <div class="contact-box">
-
-            <p>
-                For admission and other information,
-                feel free to contact us.
-            </p>
-
-            <div class="contact-info">
-
-                📞 <strong>Mobile:</strong>
-                9431685413
-
-            </div>
-
-            <div class="contact-info">
-
-                📧 <strong>Email:</strong>
-                nsinghsolanki0@gmail.com
-
-            </div>
-
-            <br>
-
-
-            <a class="button"
-               href="tel:9431685413">
-
-                📞 Call Now
-
-            </a>
-
-
-            <a class="button"
-               href="mailto:nsinghsolanki0@gmail.com">
-
-                📧 Send Email
-
-            </a>
-
-
-            <a class="button whatsapp"
-               href="https://wa.me/919431685413"
-               target="_blank"
-               rel="noopener">
-
-                🟢 WhatsApp
-
-            </a>
-
-        </div>
-
-    </section>
-
-
-    <!-- FOOTER -->
-
-    <footer>
-
-        <p>
-            © 2026 Niraj Coaching Classes
-        </p>
-
-        <p>
-            Quality Education for a Better Future
-        </p>
-
-    </footer>
-
-</body>
-</html>
+    <!--
