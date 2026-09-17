@@ -384,53 +384,55 @@ document
 
 async function editStudent(id){
 
-    const student =
-        students.find(s => s.id === id);
+    const student = students.find(s => s.id === id);
 
     if(!student) return;
 
-    const name =
-        prompt(
-            "Student Name:",
-            student.Student_name || ""
-        );
+    const name = prompt(
+        "Student Name:",
+        student.Student_name || ""
+    );
 
     if(name === null) return;
 
-    const father =
-        prompt(
-            "Father Name:",
-            student.Father_name || ""
-        );
+    const father = prompt(
+        "Father Name:",
+        student.Father_name || ""
+    );
 
     if(father === null) return;
 
-    const mobile =
-        prompt(
-            "Mobile Number:",
-            student.Mobile_number || ""
-        );
+    const mobile = prompt(
+        "Mobile Number:",
+        student.Mobile_number || ""
+    );
 
     if(mobile === null) return;
 
-    const address =
-        prompt(
-            "Address:",
-            student.Address || ""
-        );
+    const studentClass = prompt(
+        "Class:",
+        student["Student class"] || ""
+    );
+
+    if(studentClass === null) return;
+
+    const address = prompt(
+        "Address:",
+        student.Address || ""
+    );
 
     if(address === null) return;
 
-    const { error } =
-        await supabaseClient
+    const { error } = await supabaseClient
         .from("Student")
         .update({
-            Student_name:name,
-            Father_name:father,
-            Mobile_number:mobile,
-            Address:address
+            Student_name: name,
+            Father_name: father,
+            Mobile_number: mobile,
+            "Student class": studentClass,
+            Address: address
         })
-        .eq("id",id);
+        .eq("id", id);
 
     if(error){
 
@@ -446,7 +448,6 @@ async function editStudent(id){
 
     loadStudents();
 }
-
 
 async function deleteStudent(id){
 
