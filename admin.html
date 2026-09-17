@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Admin Login - Niraj Coaching Classes Admin</title>
+    <title>Admin Login - Niraj Coaching Classes</title>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
@@ -36,7 +36,7 @@
 
         .login-box img {
             width: 120px;
-            max-height: 100px;
+            height: 100px;
             object-fit: contain;
             margin-bottom: 10px;
         }
@@ -87,117 +87,117 @@
 
 <body>
 
-<div class="login-box">
+    <div class="login-box">
 
-    <img src="logo.png" alt="Niraj Coaching Classes">
+        <img src="logo.png" alt="Niraj Coaching Classes">
 
-    <h1>Niraj Coaching Classes</h1>
+        <h1>Niraj Coaching Classes</h1>
 
-    <h2>Admin Login</h2>
+        <h2>Admin Login</h2>
 
-    <input
-        type="email"
-        id="email"
-        placeholder="Admin Email"
-        required
-    >
+        <input
+            type="email"
+            id="email"
+            placeholder="Admin Email"
+            required
+        >
 
-    <input
-        type="password"
-        id="password"
-        placeholder="Password"
-        required
-    >
+        <input
+            type="password"
+            id="password"
+            placeholder="Password"
+            required
+        >
 
-    <button onclick="adminLogin()">
-        Login
-    </button>
+        <button onclick="adminLogin()">
+            Login
+        </button>
 
-    <div id="message"></div>
+        <div id="message"></div>
 
-</div>
+    </div>
 
-<script>
+    <script>
 
-const SUPABASE_URL =
-    "https://licsmghlaxqptmzybavp.supabase.co";
+        const SUPABASE_URL =
+            "https://licsmghlaxqptmzybavp.supabase.co";
 
-const SUPABASE_KEY =
-    "sb_publishable_lDYQuKhTuj2JEM3SHYrQUw_ZZkEeW50";
+        const SUPABASE_KEY =
+            "sb_publishable_lDYQuKhTuj2JEM3SHYrQUw_ZZkEeW50";
 
-const supabaseClient =
-    window.supabase.createClient(
-        SUPABASE_URL,
-        SUPABASE_KEY
-    );
-
-
-async function adminLogin() {
-
-    const email =
-        document.getElementById("email").value.trim();
-
-    const password =
-        document.getElementById("password").value;
-
-    const message =
-        document.getElementById("message");
+        const supabaseClient =
+            window.supabase.createClient(
+                SUPABASE_URL,
+                SUPABASE_KEY
+            );
 
 
-    if (!email || !password) {
+        async function adminLogin() {
 
-        message.style.color = "red";
+            const email =
+                document.getElementById("email").value.trim();
 
-        message.textContent =
-            "Email और Password भरिए।";
+            const password =
+                document.getElementById("password").value;
 
-        return;
-    }
-
-
-    message.style.color = "#555";
-
-    message.textContent =
-        "Login हो रहा है...";
+            const message =
+                document.getElementById("message");
 
 
-    const { data, error } =
-        await supabaseClient.auth.signInWithPassword({
+            if (!email || !password) {
 
-            email: email,
+                message.style.color = "red";
 
-            password: password
+                message.textContent =
+                    "Email और Password भरिए।";
 
-        });
-
-
-    if (error) {
-
-        message.style.color = "red";
-
-        message.textContent =
-            "Login failed: " + error.message;
-
-        return;
-    }
+                return;
+            }
 
 
-    message.style.color = "green";
+            message.style.color = "#555";
 
-    message.textContent =
-        "Login successful!";
+            message.textContent =
+                "Login हो रहा है...";
 
 
-    setTimeout(() => {
+            const { error } =
+                await supabaseClient.auth.signInWithPassword({
 
-        window.location.href =
-            "admin-dashboard.html";
+                    email: email,
 
-    }, 800);
+                    password: password
 
-}
+                });
 
-</script>
+
+            if (error) {
+
+                message.style.color = "red";
+
+                message.textContent =
+                    "Login failed: " + error.message;
+
+                return;
+            }
+
+
+            message.style.color = "green";
+
+            message.textContent =
+                "Login successful!";
+
+
+            setTimeout(function() {
+
+                window.location.href =
+                    "admin-dashboard.html";
+
+            }, 800);
+
+        }
+
+    </script>
 
 </body>
 </html>
