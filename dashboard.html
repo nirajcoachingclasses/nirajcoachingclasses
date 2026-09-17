@@ -1,203 +1,503 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Admin Login - Niraj Coaching Classes</title>
+<title>Admin Dashboard - Niraj Coaching Classes</title>
 
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-    <style>
-        * {
-            box-sizing: border-box;
-        }
+<style>
+*{
+    box-sizing:border-box;
+}
 
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background: linear-gradient(135deg, #0d47a1, #1976d2);
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-        }
+body{
+    margin:0;
+    font-family:Arial,sans-serif;
+    background:#f1f5f9;
+}
 
-        .login-box {
-            background: white;
-            width: 100%;
-            max-width: 400px;
-            padding: 30px;
-            border-radius: 18px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.25);
-            text-align: center;
-        }
+header{
+    background:linear-gradient(135deg,#0d47a1,#1976d2);
+    color:white;
+    padding:18px;
+    text-align:center;
+}
 
-        .login-box img {
-            width: 120px;
-            height: 100px;
-            object-fit: contain;
-            margin-bottom: 10px;
-        }
+header img{
+    width:80px;
+    height:80px;
+    object-fit:contain;
+}
 
-        h1 {
-            color: #0d47a1;
-            font-size: 25px;
-            margin: 5px 0;
-        }
+header h1{
+    margin:8px 0;
+    font-size:25px;
+}
 
-        h2 {
-            color: #555;
-            font-size: 18px;
-            margin-bottom: 25px;
-        }
+.topbar{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:10px;
+    padding:15px;
+    background:white;
+    box-shadow:0 2px 8px rgba(0,0,0,.12);
+}
 
-        input {
-            width: 100%;
-            padding: 13px;
-            margin: 8px 0;
-            border: 1px solid #ccc;
-            border-radius: 8px;
-            font-size: 15px;
-        }
+.search{
+    flex:1;
+    max-width:500px;
+    padding:12px;
+    border:1px solid #ccc;
+    border-radius:8px;
+    font-size:16px;
+}
 
-        button {
-            width: 100%;
-            padding: 13px;
-            margin-top: 15px;
-            background: #0d47a1;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            cursor: pointer;
-        }
+button{
+    border:0;
+    border-radius:7px;
+    padding:11px 16px;
+    cursor:pointer;
+    font-size:15px;
+}
 
-        button:hover {
-            background: #083579;
-        }
+.refresh{
+    background:#1976d2;
+    color:white;
+}
 
-        #message {
-            margin-top: 15px;
-            font-size: 14px;
-        }
-    </style>
+.logout{
+    background:#d32f2f;
+    color:white;
+}
+
+.container{
+    padding:15px;
+    max-width:1200px;
+    margin:auto;
+}
+
+.status{
+    margin-bottom:15px;
+    font-weight:bold;
+}
+
+.table-box{
+    background:white;
+    border-radius:10px;
+    overflow:auto;
+    box-shadow:0 2px 10px rgba(0,0,0,.10);
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+    min-width:900px;
+}
+
+th,td{
+    padding:12px;
+    border-bottom:1px solid #ddd;
+    text-align:left;
+}
+
+th{
+    background:#e3f2fd;
+    color:#0d47a1;
+}
+
+.student-photo{
+    width:60px;
+    height:60px;
+    object-fit:cover;
+    border-radius:8px;
+    border:1px solid #ccc;
+}
+
+.edit{
+    background:#388e3c;
+    color:white;
+}
+
+.delete{
+    background:#d32f2f;
+    color:white;
+    margin-left:5px;
+}
+
+.empty{
+    text-align:center;
+    padding:30px;
+}
+</style>
 </head>
 
 <body>
 
-    <div class="login-box">
+<header>
+    <img src="logo.png" alt="Niraj Coaching Classes">
+    <h1>Niraj Coaching Classes</h1>
+    <div>Admin Dashboard</div>
+</header>
 
-        <img src="logo.png" alt="Niraj Coaching Classes">
+<div class="topbar">
 
-        <h1>Niraj Coaching Classes</h1>
+    <input
+        type="text"
+        id="search"
+        class="search"
+        placeholder="Search student name, father name or mobile..."
+    >
 
-        <h2>Admin Login</h2>
+    <button class="refresh" onclick="loadStudents()">
+        Refresh
+    </button>
 
-        <input
-            type="email"
-            id="email"
-            placeholder="Admin Email"
-        >
+    <button class="logout" onclick="logout()">
+        Logout
+    </button>
 
-        <input
-            type="password"
-            id="password"
-            placeholder="Password"
-        >
+</div>
 
-        <button onclick="adminLogin()">
-            Login
-        </button>
+<div class="container">
 
-        <div id="message"></div>
+    <div id="status" class="status">
+        Loading students...
+    </div>
+
+    <div class="table-box">
+
+        <table>
+
+            <thead>
+                <tr>
+                    <th>Photo</th>
+                    <th>Student Name</th>
+                    <th>Father Name</th>
+                    <th>Mobile</th>
+                    <th>Class</th>
+                    <th>Address</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+
+            <tbody id="studentList"></tbody>
+
+        </table>
 
     </div>
 
+</div>
 
-    <script>
+<script>
 
-        const SUPABASE_URL =
-            "https://licsmghlaxqptmzybavp.supabase.co";
+const SUPABASE_URL =
+"https://licsmghlaxqptmzybavp.supabase.co";
 
-        const SUPABASE_KEY =
-            "sb_publishable_lDYQuKhTuj2JEM3SHYrQUw_ZZkEeW50";
+const SUPABASE_KEY =
+"sb_publishable_lDYQuKhTuj2JEM3SHYrQUw_ZZkEeW50";
 
+const supabaseClient =
+window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+);
 
-        const supabaseClient =
-            window.supabase.createClient(
-                SUPABASE_URL,
-                SUPABASE_KEY
-            );
+let students = [];
 
+async function checkLogin(){
 
-        async function adminLogin() {
+    const {
+        data: { session }
+    } = await supabaseClient.auth.getSession();
 
-            const email =
-                document.getElementById("email").value.trim();
+    if(!session){
 
-            const password =
-                document.getElementById("password").value;
+        window.location.href = "login.html";
+        return;
+    }
 
-            const message =
-                document.getElementById("message");
-
-
-            if (!email || !password) {
-
-                message.style.color = "red";
-
-                message.textContent =
-                    "Email और Password भरिए।";
-
-                return;
-            }
+    loadStudents();
+}
 
 
-            message.style.color = "#555";
+async function loadStudents(){
 
-            message.textContent =
-                "Login हो रहा है...";
+    const status =
+        document.getElementById("status");
+
+    status.textContent =
+        "Loading students...";
+
+    const { data, error } =
+        await supabaseClient
+        .from("Student")
+        .select("*")
+        .order("created_at", {
+            ascending:false
+        });
+
+    if(error){
+
+        console.error(error);
+
+        status.textContent =
+            "Error: " + error.message;
+
+        return;
+    }
+
+    students = data || [];
+
+    displayStudents(students);
+
+    status.textContent =
+        "Total Students: " + students.length;
+}
 
 
-            const { error } =
-                await supabaseClient.auth.signInWithPassword({
+async function getPhotoUrl(path){
 
-                    email: email,
+    if(!path) return "";
 
-                    password: password
+    const { data, error } =
+        await supabaseClient.storage
+        .from("student_photos")
+        .createSignedUrl(path, 3600);
 
-                });
+    if(error){
+        console.error(error);
+        return "";
+    }
 
-
-            if (error) {
-
-                message.style.color = "red";
-
-                message.textContent =
-                    "Login failed: " + error.message;
-
-                return;
-            }
+    return data.signedUrl;
+}
 
 
-            message.style.color = "green";
+async function displayStudents(list){
 
-            message.textContent =
-                "Login successful!";
+    const tbody =
+        document.getElementById("studentList");
+
+    tbody.innerHTML = "";
+
+    if(list.length === 0){
+
+        tbody.innerHTML =
+        `<tr>
+            <td colspan="7" class="empty">
+                No students found
+            </td>
+        </tr>`;
+
+        return;
+    }
+
+    for(const student of list){
+
+        const photo =
+            await getPhotoUrl(student.Photo_url);
+
+        const tr =
+        document.createElement("tr");
+
+        tr.innerHTML = `
+
+            <td>
+                ${
+                    photo
+                    ?
+                    `<img
+                        src="${photo}"
+                        class="student-photo"
+                    >`
+                    :
+                    "No Photo"
+                }
+            </td>
+
+            <td>${student.Student_name || ""}</td>
+
+            <td>${student.Father_name || ""}</td>
+
+            <td>${student.Mobile_number || ""}</td>
+
+            <td>${student["Student class"] || ""}</td>
+
+            <td>${student.Address || ""}</td>
+
+            <td>
+
+                <button
+                    class="edit"
+                    onclick="editStudent('${student.id}')">
+                    Edit
+                </button>
+
+                <button
+                    class="delete"
+                    onclick="deleteStudent('${student.id}')">
+                    Delete
+                </button>
+
+            </td>
+        `;
+
+        tbody.appendChild(tr);
+    }
+}
 
 
-            setTimeout(function() {
+document
+.getElementById("search")
+.addEventListener("input", function(){
 
-                window.location.href =
-                    "admin-dashboard.html";
+    const q =
+        this.value.toLowerCase().trim();
 
-            }, 800);
+    const filtered =
+        students.filter(s =>
 
-        }
+            (s.Student_name || "")
+            .toLowerCase()
+            .includes(q)
 
-    </script>
+            ||
+
+            (s.Father_name || "")
+            .toLowerCase()
+            .includes(q)
+
+            ||
+
+            (s.Mobile_number || "")
+            .toLowerCase()
+            .includes(q)
+        );
+
+    displayStudents(filtered);
+});
+
+
+async function editStudent(id){
+
+    const student =
+        students.find(s => s.id === id);
+
+    if(!student) return;
+
+    const name =
+        prompt(
+            "Student Name:",
+            student.Student_name || ""
+        );
+
+    if(name === null) return;
+
+    const father =
+        prompt(
+            "Father Name:",
+            student.Father_name || ""
+        );
+
+    if(father === null) return;
+
+    const mobile =
+        prompt(
+            "Mobile Number:",
+            student.Mobile_number || ""
+        );
+
+    if(mobile === null) return;
+
+    const address =
+        prompt(
+            "Address:",
+            student.Address || ""
+        );
+
+    if(address === null) return;
+
+    const { error } =
+        await supabaseClient
+        .from("Student")
+        .update({
+            Student_name:name,
+            Father_name:father,
+            Mobile_number:mobile,
+            Address:address
+        })
+        .eq("id",id);
+
+    if(error){
+
+        alert(
+            "Update failed: " +
+            error.message
+        );
+
+        return;
+    }
+
+    alert("Student updated successfully!");
+
+    loadStudents();
+}
+
+
+async function deleteStudent(id){
+
+    const student =
+        students.find(s => s.id === id);
+
+    if(!student) return;
+
+    const confirmDelete =
+        confirm(
+            "Delete student " +
+            (student.Student_name || "") +
+            "?"
+        );
+
+    if(!confirmDelete) return;
+
+    const { error } =
+        await supabaseClient
+        .from("Student")
+        .delete()
+        .eq("id",id);
+
+    if(error){
+
+        alert(
+            "Delete failed: " +
+            error.message
+        );
+
+        return;
+    }
+
+    alert("Student deleted successfully!");
+
+    loadStudents();
+}
+
+
+async function logout(){
+
+    await supabaseClient.auth.signOut();
+
+    window.location.href =
+        "login.html";
+}
+
+
+checkLogin();
+
+</script>
 
 </body>
 </html>
