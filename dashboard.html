@@ -497,8 +497,167 @@ async function logout(){
 
 
 checkLogin();
+let currentEditId = null;
 
+window.editStudent = function(id){
+
+    const student = students.find(s => s.id === id);
+
+    if(!student) return;
+
+    currentEditId = id;
+
+    document.getElementById("editName").value =
+        student.Student_name || "";
+
+    document.getElementById("editFather").value =
+        student.Father_name || "";
+
+    document.getElementById("editMobile").value =
+        student.Mobile_number || "";
+
+    document.getElementById("editClass").value =
+        student["Student class"] || "";
+
+    document.getElementById("editAddress").value =
+        student.Address || "";
+
+    document.getElementById("editModal").style.display =
+        "block";
+};
+
+
+function closeEditForm(){
+
+    document.getElementById("editModal").style.display =
+        "none";
+
+    currentEditId = null;
+}
+
+
+async function saveStudentEdit(){
+
+    if(!currentEditId) return;
+
+    const name =
+        document.getElementById("editName").value.trim();
+
+    const father =
+        document.getElementById("editFather").value.trim();
+
+    const mobile =
+        document.getElementById("editMobile").value.trim();
+
+    const studentClass =
+        document.getElementById("editClass").value.trim();
+
+    const address =
+        document.getElementById("editAddress").value.trim();
+
+    if(!name || !father || !mobile || !studentClass){
+
+        alert("Please fill all required fields.");
+
+        return;
+    }
+
+    const { error } =
+        await supabaseClient
+        .from("Student")
+        .update({
+            Student_name: name,
+            Father_name: father,
+            Mobile_number: mobile,
+            "Student class": studentClass,
+            Address: address
+        })
+        .eq("id", currentEditId);
+
+    if(error){
+
+        alert(
+            "Update failed: " +
+            error.message
+        );
+
+        return;
+    }
+
+    alert("Student updated successfully!");
+
+    closeEditForm();
+
+    await loadStudents();
+}
 </script>
+<div id="editModal" style="
+    display:none;
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,0.55);
+    z-index:9999;
+    padding:20px;
+    overflow:auto;
+">
 
+    <div style="
+        max-width:450px;
+        margin:40px auto;
+        background:white;
+        padding:22px;
+        border-radius:12px;
+    ">
+
+        <h2 style="text-align:center;color:#0d47a1;">
+            Edit Student
+        </h2>
+
+        <input id="editName"
+            placeholder="Student Name"
+            style="width:100%;padding:12px;margin:7px 0;">
+
+        <input id="editFather"
+            placeholder="Father Name"
+            style="width:100%;padding:12px;margin:7px 0;">
+
+        <input id="editMobile"
+            placeholder="Mobile Number"
+            style="width:100%;padding:12px;margin:7px 0;">
+
+        <input id="editClass"
+            placeholder="Class"
+            style="width:100%;padding:12px;margin:7px 0;">
+
+        <textarea id="editAddress"
+            placeholder="Address"
+            style="width:100%;padding:12px;margin:7px 0;min-height:90px;"></textarea>
+
+        <button onclick="saveStudentEdit()"
+            style="
+                width:48%;
+                padding:12px;
+                background:#388e3c;
+                color:white;
+                border:0;
+                border-radius:7px;
+            ">
+            Save
+        </button>
+
+        <button onclick="closeEditForm()"
+            style="
+                width:48%;
+                padding:12px;
+                background:#d32f2f;
+                color:white;
+                border:0;
+                border-radius:7px;
+            ">
+            Cancel
+        </button>
+
+    </div>
+</div>
 </body>
 </html>
