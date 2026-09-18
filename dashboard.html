@@ -501,7 +501,7 @@ let currentEditId = null;
 
 window.editStudent = function(id){
 
-    const student = students.find(s => s.id === id);
+    const student = students.find(s => String(s.id) === String(id));
 
     if(!student) return;
 
