@@ -451,9 +451,8 @@ async function editStudent(id){
 
 async function deleteStudent(id){
 
-    const student =
-        students.find(s => s.id === id);
-
+   const student =
+    students.find(s => String(s.id) === String(id));
     if(!student) return;
 
     const confirmDelete =
