@@ -263,7 +263,8 @@ async function loadStudents(){
 
     students = data || [];
 
-    displayStudents(students);
+displayStudents(students);
+populateFeeStudents();
 
     status.textContent =
         "Total Students: " + students.length;
@@ -600,6 +601,73 @@ async function saveStudentEdit(){
 
     await loadStudents();
 }
+    function updateDueFee(){
+    const monthly = Number(document.getElementById("monthlyFee").value) || 0;
+    const paid = Number(document.getElementById("amountPaid").value) || 0;
+
+    document.getElementById("dueFee").value =
+        Math.max(monthly - paid, 0);
+}
+
+document.getElementById("monthlyFee").addEventListener("input", updateDueFee);
+document.getElementById("amountPaid").addEventListener("input", updateDueFee);
+
+async function saveFee(){
+
+    const studentId = document.getElementById("feeStudent").value;
+    const feeMonth = document.getElementById("feeMonth").value;
+    const monthlyFee = Number(document.getElementById("monthlyFee").value) || 0;
+    const amountPaid = Number(document.getElementById("amountPaid").value) || 0;
+    const dueFee = Math.max(monthlyFee - amountPaid, 0);
+    const paymentDate = document.getElementById("paymentDate").value;
+
+    if(!studentId || !feeMonth || !monthlyFee){
+        alert("Please fill Student, Month and Monthly Fee.");
+        return;
+    }
+
+    const { error } = await supabaseClient
+        .from("Fees")
+        .insert([{
+            student_id: Number(studentId),
+            fee_month: feeMonth,
+            monthly_fee: monthlyFee,
+            amount_paid: amountPaid,
+            due_fee: dueFee,
+            payment_date: paymentDate || null
+        }]);
+
+    if(error){
+        alert("Fee save failed: " + error.message);
+        return;
+    }
+
+    alert("Fee saved successfully!");
+
+    document.getElementById("monthlyFee").value = "";
+    document.getElementById("amountPaid").value = "0";
+    document.getElementById("dueFee").value = "0";
+    document.getElementById("paymentDate").value = "";
+}
+  function populateFeeStudents(){
+
+    const select = document.getElementById("feeStudent");
+
+    select.innerHTML = '<option value="">Select Student</option>';
+
+    students.forEach(function(student){
+
+        const option = document.createElement("option");
+
+        option.value = student.id;
+
+        option.textContent =
+            student.Student_name + " - Class " +
+            (student["Student class"] || "");
+
+        select.appendChild(option);
+    });
+} 
 </script>
 <div id="editModal" style="
     display:none;
@@ -668,6 +736,40 @@ async function saveStudentEdit(){
         </button>
 
     </div>
+   <div style="margin:20px 0;padding:20px;background:white;border-radius:10px;">
+    <h2>💰 Fees Management</h2>
+    <div style="display:grid;gap:12px;">
+
+    <select id="feeStudent" style="padding:12px;">
+        <option value="">Select Student</option>
+    </select>
+
+    <input type="date" id="feeMonth" style="padding:12px;">
+
+    <input type="number" id="monthlyFee"
+           placeholder="Monthly Fee"
+           style="padding:12px;">
+
+    <input type="number" id="amountPaid"
+           placeholder="Amount Paid"
+           value="0"
+           style="padding:12px;">
+
+    <input type="number" id="dueFee"
+           placeholder="Due Fee"
+           value="0"
+           readonly
+           style="padding:12px;background:#f1f1f1;">
+
+    <input type="date" id="paymentDate" style="padding:12px;">
+
+    <button onclick="saveFee()"
+            style="padding:12px;background:#1976d2;color:white;border:0;border-radius:7px;">
+        Save Fee
+    </button>
+
+</div>
+</div> 
 </div>
 </body>
 </html>
