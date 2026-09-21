@@ -718,6 +718,69 @@ async function saveFee(){
         select.appendChild(option);
     });
 } 
+ async function loadFeeHistory(){
+
+    const body = document.getElementById("feeHistoryBody");
+
+    if(!body) return;
+
+    body.innerHTML =
+        '<tr><td colspan="6" style="padding:15px;text-align:center;">Loading...</td></tr>';
+
+    const { data, error } =
+        await supabaseClient
+        .from("Fees")
+        .select("*")
+        .order("fee_month", { ascending:false });
+
+    if(error){
+        body.innerHTML =
+            '<tr><td colspan="6" style="padding:15px;text-align:center;">' +
+            error.message +
+            '</td></tr>';
+        return;
+    }
+
+    if(!data || data.length === 0){
+        body.innerHTML =
+            '<tr><td colspan="6" style="padding:15px;text-align:center;">No fee records</td></tr>';
+        return;
+    }
+
+    body.innerHTML = "";
+
+    data.forEach(function(fee){
+
+        const student = students.find(
+            s => String(s.id) === String(fee.student_id)
+        );
+
+        const row = document.createElement("tr");
+
+        row.innerHTML = `
+            <td style="padding:10px;">
+                ${student ? student.Student_name : "Unknown"}
+            </td>
+            <td style="padding:10px;">
+                ${fee.fee_month || ""}
+            </td>
+            <td style="padding:10px;">
+                ₹${fee.monthly_fee || 0}
+            </td>
+            <td style="padding:10px;">
+                ₹${fee.amount_paid || 0}
+            </td>
+            <td style="padding:10px;">
+                ₹${fee.due_fee || 0}
+            </td>
+            <td style="padding:10px;">
+                ${fee.payment_date || ""}
+            </td>
+        `;
+
+        body.appendChild(row);
+    });
+}   
 </script>
 <div id="editModal" style="
     display:none;
