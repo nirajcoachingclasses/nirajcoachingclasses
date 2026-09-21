@@ -234,7 +234,56 @@ async function checkLogin(){
     loadStudents();
 }
 
+async function loadFeeHistory(){
 
+    const body = document.getElementById("feeHistoryBody");
+
+    if(!body) return;
+
+    body.innerHTML =
+        '<tr><td colspan="6" style="padding:15px;text-align:center;">Loading...</td></tr>';
+
+    const { data, error } = await supabaseClient
+        .from("Fees")
+        .select("*")
+        .order("fee_month", { ascending:false });
+
+    if(error){
+        body.innerHTML =
+            '<tr><td colspan="6" style="padding:15px;text-align:center;">' +
+            error.message +
+            '</td></tr>';
+        return;
+    }
+
+    if(!data || data.length === 0){
+        body.innerHTML =
+            '<tr><td colspan="6" style="padding:15px;text-align:center;">No fee records</td></tr>';
+        return;
+    }
+
+    body.innerHTML = "";
+
+    data.forEach(function(fee){
+
+        const student = students.find(
+            s => String(s.id) === String(fee.student_id)
+        );
+
+        const row = document.createElement("tr");
+
+        row.innerHTML = `
+            <td style="padding:10px;">${student ? student.Student_name : "Unknown"}</td>
+            <td style="padding:10px;">${fee.fee_month || ""}</td>
+            <td style="padding:10px;">₹${fee.monthly_fee || 0}</td>
+            <td style="padding:10px;">₹${fee.amount_paid || 0}</td>
+            <td style="padding:10px;">₹${fee.due_fee || 0}</td>
+            <td style="padding:10px;">${fee.payment_date || ""}</td>
+        `;
+
+        body.appendChild(row);
+    });
+}
 async function loadStudents(){
 
     const status =
@@ -265,7 +314,8 @@ async function loadStudents(){
 
 displayStudents(students);
 populateFeeStudents();
-
+loadFeeHistory();
+    
     status.textContent =
         "Total Students: " + students.length;
 }
@@ -774,6 +824,34 @@ async function saveFee(){
 
     </div>
 </div>    
+<div style="margin:20px 0;padding:20px;background:white;border-radius:10px;">
 
+    <h2>📋 Fee History</h2>
+
+    <div style="overflow-x:auto;">
+        <table style="width:100%;border-collapse:collapse;">
+            <thead>
+                <tr style="background:#e3f2fd;">
+                    <th style="padding:10px;">Student</th>
+                    <th style="padding:10px;">Month</th>
+                    <th style="padding:10px;">Monthly Fee</th>
+                    <th style="padding:10px;">Paid</th>
+                    <th style="padding:10px;">Due</th>
+                    <th style="padding:10px;">Payment Date</th>
+                </tr>
+            </thead>
+
+            <tbody id="feeHistoryBody">
+                <tr>
+                    <td colspan="6" style="padding:15px;text-align:center;">
+                        No fee records
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+</div>
+    
 </body>
 </html>
