@@ -902,21 +902,24 @@ document.getElementById("paymentDate").value = "";
 
     <div style="display:grid;gap:12px;">
 
-        <select id="feeStudent" style="padding:12px;">
+        <select id="feeStudent" style="padding:12px;" onchange="updateDueFee()">
             <option value="">Select Student</option>
         </select>
        <label>Fee Month</label>
-        <input type="date" id="feeMonth" style="padding:12px;">
+       <input type="date" id="feeMonth"
+       style="padding:12px;"
+       onchange="updateDueFee()">
 
-        <label>Monthly Fee</label>
-<input type="number" id="monthlyFee"
+   <input type="number" id="monthlyFee"
        placeholder="Monthly Fee"
-       style="padding:12px;">
+       oninput="updateDueFee()"
+       style="padding:12px;">    
 <label>Amount Paid</label>
-        <input type="number" id="amountPaid"
-               placeholder="Amount Paid"
-               value="0"
-               style="padding:12px;">
+       <input type="number" id="amountPaid"
+       placeholder="Amount Paid"
+       value="0"
+       oninput="updateDueFee()"
+       style="padding:12px;">
         <label>Previous Due</label>
          <input type="number" id="previousDue"
        placeholder="Previous Due"
