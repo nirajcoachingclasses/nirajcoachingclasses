@@ -905,35 +905,39 @@ document.getElementById("paymentDate").value = "";
         <select id="feeStudent" style="padding:12px;">
             <option value="">Select Student</option>
         </select>
-
+       <label>Fee Month</label>
         <input type="date" id="feeMonth" style="padding:12px;">
 
-        <input type="number" id="monthlyFee"
-               placeholder="Monthly Fee"
-               style="padding:12px;">
-
+        <label>Monthly Fee</label>
+<input type="number" id="monthlyFee"
+       placeholder="Monthly Fee"
+       style="padding:12px;">
+<label>Amount Paid</label>
         <input type="number" id="amountPaid"
                placeholder="Amount Paid"
                value="0"
                style="padding:12px;">
+        <label>Previous Due</label>
          <input type="number" id="previousDue"
        placeholder="Previous Due"
        value="0"
        readonly
        style="padding:12px;background:#f1f1f1;">
-
+<label>Total Payable</label>
 <input type="number" id="totalPayable"
        placeholder="Total Payable"
        value="0"
        readonly
+  <label>Due Fee</label>
+<input type="number" id="dueFee"
+       placeholder="Due Fee"
+       value="0"
+       readonly
        style="padding:12px;background:#f1f1f1;">
-        <input type="number" id="dueFee"
-               placeholder="Due Fee"
-               value="0"
-               readonly
-               style="padding:12px;background:#f1f1f1;">
 
-        <input type="date" id="paymentDate" style="padding:12px;">
+<label>Payment Date</label>
+<input type="date" id="paymentDate"
+       style="padding:12px;">
 
         <button onclick="saveFee()"
                 style="padding:12px;background:#1976d2;color:white;border:0;border-radius:7px;">
