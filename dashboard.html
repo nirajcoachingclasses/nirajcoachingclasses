@@ -692,18 +692,6 @@ async function saveStudentEdit(){
 }
 
 
-document.getElementById("feeStudent")
-    .addEventListener("change", updateDueFee);
-
-document.getElementById("feeMonth")
-    .addEventListener("change", updateDueFee);
-
-document.getElementById("monthlyFee")
-    .addEventListener("input", updateDueFee);
-
-document.getElementById("amountPaid")
-    .addEventListener("input", updateDueFee);
-
 async function saveFee(){
 
     const studentId = document.getElementById("feeStudent").value;
