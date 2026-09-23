@@ -651,24 +651,67 @@ async function saveStudentEdit(){
 
     await loadStudents();
 }
-    function updateDueFee(){
-    const monthly = Number(document.getElementById("monthlyFee").value) || 0;
-    const paid = Number(document.getElementById("amountPaid").value) || 0;
+   async function updateDueFee(){
+
+    const studentId = document.getElementById("feeStudent").value;
+    const feeMonth = document.getElementById("feeMonth").value;
+
+    let monthly = Number(document.getElementById("monthlyFee").value) || 0;
+    let previousDue = 0;
+
+    if(studentId && feeMonth){
+
+        const { data, error } = await supabaseClient
+            .from("Fees")
+            .select("monthly_fee, due_fee, fee_month")
+            .eq("student_id", Number(studentId))
+            .lt("fee_month", feeMonth)
+            .order("fee_month", { ascending: false })
+            .limit(1);
+
+        if(!error && data && data.length > 0){
+
+            monthly = Number(data[0].monthly_fee) || monthly;
+            previousDue = Number(data[0].due_fee) || 0;
+
+            document.getElementById("monthlyFee").value = monthly;
+        }
+    }
+
+    document.getElementById("previousDue").value = previousDue;
+
+    const totalPayable = monthly + previousDue;
+
+    document.getElementById("totalPayable").value = totalPayable;
+
+    const paid =
+        Number(document.getElementById("amountPaid").value) || 0;
 
     document.getElementById("dueFee").value =
-        Math.max(monthly - paid, 0);
+        Math.max(totalPayable - paid, 0);
 }
 
-document.getElementById("monthlyFee").addEventListener("input", updateDueFee);
-document.getElementById("amountPaid").addEventListener("input", updateDueFee);
+
+document.getElementById("feeStudent")
+    .addEventListener("change", updateDueFee);
+
+document.getElementById("feeMonth")
+    .addEventListener("change", updateDueFee);
+
+document.getElementById("monthlyFee")
+    .addEventListener("input", updateDueFee);
+
+document.getElementById("amountPaid")
+    .addEventListener("input", updateDueFee);
 
 async function saveFee(){
 
     const studentId = document.getElementById("feeStudent").value;
     const feeMonth = document.getElementById("feeMonth").value;
     const monthlyFee = Number(document.getElementById("monthlyFee").value) || 0;
-    const amountPaid = Number(document.getElementById("amountPaid").value) || 0;
-    const dueFee = Math.max(monthlyFee - amountPaid, 0);
+const amountPaid = Number(document.getElementById("amountPaid").value) || 0;
+const totalPayable = Number(document.getElementById("totalPayable").value) || monthlyFee;
+const dueFee = Math.max(totalPayable - amountPaid, 0);
     const paymentDate = document.getElementById("paymentDate").value;
 
     if(!studentId || !feeMonth || !monthlyFee){
@@ -694,10 +737,12 @@ async function saveFee(){
 
     alert("Fee saved successfully!");
 
-    document.getElementById("monthlyFee").value = "";
-    document.getElementById("amountPaid").value = "0";
-    document.getElementById("dueFee").value = "0";
-    document.getElementById("paymentDate").value = "";
+   document.getElementById("monthlyFee").value = "";
+document.getElementById("amountPaid").value = "0";
+document.getElementById("previousDue").value = "0";
+document.getElementById("totalPayable").value = "0";
+document.getElementById("dueFee").value = "0";
+document.getElementById("paymentDate").value = ""; 
 }
   function populateFeeStudents(){
 
@@ -871,7 +916,17 @@ async function saveFee(){
                placeholder="Amount Paid"
                value="0"
                style="padding:12px;">
+         <input type="number" id="previousDue"
+       placeholder="Previous Due"
+       value="0"
+       readonly
+       style="padding:12px;background:#f1f1f1;">
 
+<input type="number" id="totalPayable"
+       placeholder="Total Payable"
+       value="0"
+       readonly
+       style="padding:12px;background:#f1f1f1;">
         <input type="number" id="dueFee"
                placeholder="Due Fee"
                value="0"
