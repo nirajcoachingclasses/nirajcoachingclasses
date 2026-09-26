@@ -722,9 +722,10 @@ const dueFee = Math.max(totalPayable - amountPaid, 0);
         alert("Fee save failed: " + error.message);
         return;
     }
-
+    
     alert("Fee saved successfully!");
-
+    printFeeReceipt();
+    
    document.getElementById("monthlyFee").value = "";
 document.getElementById("amountPaid").value = "0";
 document.getElementById("previousDue").value = "0";
@@ -945,9 +946,6 @@ document.getElementById("paymentDate").value = "";
             <td>Fee Month</td>
             <td>${feeMonth}</td>
         </tr>
-                        <td>Fee Month</td>
-                        <td>${feeMonth}</td>
-                    </tr>
 
                     <tr>
                         <td>Monthly Fee</td>
