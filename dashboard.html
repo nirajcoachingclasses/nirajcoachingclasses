@@ -918,16 +918,33 @@ document.getElementById("paymentDate").value = "";
 
             <div class="receipt">
 
-                <h1>Niraj Coaching Classes</h1>
-                <h3>Fee Payment Receipt</h3>
+    <img src="logo.png"
+         style="display:block;width:90px;height:90px;object-fit:contain;margin:0 auto 10px;">
 
-                <table>
-                    <tr>
-                        <td>Student Name</td>
-                        <td>${studentName}</td>
-                    </tr>
+    <h1>Niraj Coaching Classes</h1>
+    <h3>Fee Payment Receipt</h3>
 
-                    <tr>
+    <table>
+
+        <tr>
+            <td>Receipt No.</td>
+            <td>${receiptNumber}</td>
+        </tr>
+
+        <tr>
+            <td>Student Name</td>
+            <td>${studentName}</td>
+        </tr>
+
+        <tr>
+            <td>Father Name</td>
+            <td>${fatherName}</td>
+        </tr>
+
+        <tr>
+            <td>Fee Month</td>
+            <td>${feeMonth}</td>
+        </tr>
                         <td>Fee Month</td>
                         <td>${feeMonth}</td>
                     </tr>
