@@ -820,7 +820,13 @@ document.getElementById("paymentDate").value = "";
     const studentSelect = document.getElementById("feeStudent");
     const studentName =
         studentSelect.options[studentSelect.selectedIndex].text;
+const selectedStudent = students.find(
+    s => String(s.id) === String(studentSelect.value)
+);
 
+const fatherName = selectedStudent ? selectedStudent.Father_name : "";
+
+const receiptNumber = "REC-" + Date.now();
     const feeMonth =
         document.getElementById("feeMonth").value;
 
