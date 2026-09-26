@@ -855,6 +855,7 @@ const receiptNumber = "REC-" + Date.now();
 
     const receiptWindow = window.open("", "_blank");
 
+        receiptWindow.document.open();
     receiptWindow.document.write(`
         <!DOCTYPE html>
         <html>
