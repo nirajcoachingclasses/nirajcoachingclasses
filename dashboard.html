@@ -18,6 +18,45 @@ body{
     font-family:Arial,sans-serif;
     background:#f1f5f9;
 }
+ /* Dashboard Sections */
+.dashboard-section{
+    background:white;
+    margin:25px 0;
+    padding:20px;
+    border-radius:14px;
+    box-shadow:0 3px 12px rgba(0,0,0,0.10);
+    border:1px solid #e5e7eb;
+}
+
+.dashboard-section h2{
+    margin:0 0 18px 0;
+    padding-bottom:12px;
+    border-bottom:2px solid #e3f2fd;
+    color:#0d47a1;
+    font-size:22px;
+}
+
+.dashboard-section.pending-section h2{
+    color:#b26a00;
+    border-bottom-color:#ffe082;
+}
+
+.dashboard-section.history-section h2{
+    color:#0d47a1;
+    border-bottom-color:#e3f2fd;
+}
+
+@media(max-width:600px){
+    .dashboard-section{
+        margin:18px 0;
+        padding:14px;
+        border-radius:10px;
+    }
+
+    .dashboard-section h2{
+        font-size:19px;
+    }
+}   
 
 header{
     background:linear-gradient(135deg,#0d47a1,#1976d2);
@@ -1160,7 +1199,7 @@ const receiptNumber = "REC-" + Date.now();
 </div> 
 </div>
 </div> 
-<div style="margin:20px 0;padding:20px;background:white;border-radius:10px;">
+<div class="dashboard-section">
     <h2>💰 Fees Management</h2>
 
     <div style="display:grid;gap:12px;">
@@ -1215,7 +1254,7 @@ const receiptNumber = "REC-" + Date.now();
 
     </div>
 </div>
-   <div style="margin:20px 0;padding:20px;background:white;border-radius:10px;">
+  <div class="dashboard-section pending-section"> 
 
     <h2>⚠️ Pending Fees</h2>
 
@@ -1248,7 +1287,7 @@ const receiptNumber = "REC-" + Date.now();
     </div>
 
 </div> 
-<div style="margin:20px 0;padding:20px;background:white;border-radius:10px;">
+<div class="dashboard-section history-section">
 
     <h2>📋 Fee History</h2>
 
