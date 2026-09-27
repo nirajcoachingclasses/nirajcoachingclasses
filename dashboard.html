@@ -57,7 +57,49 @@ body{
         font-size:19px;
     }
 }   
+/* Dashboard Tabs */
+.dashboard-tabs{
+    display:flex;
+    gap:10px;
+    padding:15px;
+    background:white;
+    border-radius:12px;
+    margin:15px;
+    box-shadow:0 2px 8px rgba(0,0,0,0.10);
+    overflow-x:auto;
+}
 
+.dashboard-tabs button{
+    flex:1;
+    min-width:140px;
+    background:#e3f2fd;
+    color:#0d47a1;
+    border:0;
+    border-radius:8px;
+    padding:13px 15px;
+    font-size:15px;
+    font-weight:bold;
+    white-space:nowrap;
+}
+
+.dashboard-tabs button:hover{
+    background:#1976d2;
+    color:white;
+}
+
+@media(max-width:600px){
+    .dashboard-tabs{
+        margin:10px;
+        padding:10px;
+        gap:7px;
+    }
+
+    .dashboard-tabs button{
+        min-width:125px;
+        padding:11px 10px;
+        font-size:14px;
+    }
+}
 header{
     background:linear-gradient(135deg,#0d47a1,#1976d2);
     color:white;
@@ -211,14 +253,32 @@ th{
     </button>
 
 </div>
+<div class="dashboard-tabs">
 
+    <button onclick="showSection('studentsSection')">
+        👨‍🎓 Students
+    </button>
+
+    <button onclick="showSection('feesSection')">
+        💰 Fees
+    </button>
+
+    <button onclick="showSection('pendingSection')">
+        ⚠️ Pending Fees
+    </button>
+
+    <button onclick="showSection('historySection')">
+        📋 Fee History
+    </button>
+
+</div>
 <div class="container">
 
     <div id="status" class="status">
         Loading students...
     </div>
 
-    <div class="table-box">
+    <div id="studentsSection" class="table-box">
 
         <table>
 
@@ -1128,6 +1188,25 @@ const receiptNumber = "REC-" + Date.now();
 
     receiptWindow.document.close();
 }
+    function showSection(sectionId){
+
+    const sections = [
+        "studentsSection",
+        "feesSection",
+        "pendingSection",
+        "historySection"
+    ];
+
+    sections.forEach(function(id){
+        const section = document.getElementById(id);
+
+        if(section){
+            section.style.display =
+                id === sectionId ? "block" : "none";
+        }
+    });
+}
+showSection("studentsSection");    
 </script>
 <div id="editModal" style="
     display:none;
@@ -1199,7 +1278,7 @@ const receiptNumber = "REC-" + Date.now();
 </div> 
 </div>
 </div> 
-<div class="dashboard-section">
+<div id="feesSection" class="dashboard-section">
     <h2>💰 Fees Management</h2>
 
     <div style="display:grid;gap:12px;">
@@ -1254,7 +1333,7 @@ const receiptNumber = "REC-" + Date.now();
 
     </div>
 </div>
-  <div class="dashboard-section pending-section"> 
+  <div id="pendingSection" class="dashboard-section pending-section">
 
     <h2>⚠️ Pending Fees</h2>
 
@@ -1287,7 +1366,7 @@ const receiptNumber = "REC-" + Date.now();
     </div>
 
 </div> 
-<div class="dashboard-section history-section">
+<div id="historySection" class="dashboard-section history-section">
 
     <h2>📋 Fee History</h2>
 
