@@ -467,6 +467,27 @@ async function loadFeeHistory(){
                 >
                     WhatsApp
                 </a>
+               <br><br>
+
+<button
+    onclick="collectPendingFee(
+        '${fee.id}',
+        '${fee.student_id}',
+        '${fee.due_fee || 0}',
+        '${fee.monthly_fee || 0}',
+        '${fee.fee_month || ""}'
+    )"
+    style="
+        background:#1976d2;
+        color:white;
+        padding:7px 10px;
+        border:0;
+        border-radius:5px;
+        cursor:pointer;
+    "
+>
+    💵 Collect
+</button> 
             </td>
         `;
 
@@ -1188,6 +1209,79 @@ const receiptNumber = "REC-" + Date.now();
 
     receiptWindow.document.close();
 }
+ async function collectPendingFee(
+    feeId,
+    studentId,
+    dueAmount,
+    monthlyFee,
+    feeMonth
+){
+
+    const due = Number(dueAmount) || 0;
+
+    const payment = Number(
+        prompt(
+            "Pending Fee: ₹" + due +
+            "\n\nEnter amount received:"
+        )
+    );
+
+    if(!payment || payment <= 0){
+        return;
+    }
+
+    if(payment > due){
+        alert("Payment cannot be greater than pending fee.");
+        return;
+    }
+
+    const newPaid = payment;
+
+    const { data: oldFee, error: fetchError } =
+        await supabaseClient
+            .from("Fees")
+            .select("amount_paid, due_fee")
+            .eq("id", feeId)
+            .single();
+
+    if(fetchError){
+        alert("Fee record not found: " + fetchError.message);
+        return;
+    }
+
+    const totalPaid =
+        Number(oldFee.amount_paid || 0) + newPaid;
+
+    const remainingDue =
+        Math.max(Number(oldFee.due_fee || 0) - newPaid, 0);
+
+    const today =
+        new Date().toISOString().split("T")[0];
+
+    const { error } =
+        await supabaseClient
+            .from("Fees")
+            .update({
+                amount_paid: totalPaid,
+                due_fee: remainingDue,
+                payment_date: today
+            })
+            .eq("id", feeId);
+
+    if(error){
+        alert("Payment update failed: " + error.message);
+        return;
+    }
+
+    alert(
+        "Payment received successfully!\n\n" +
+        "Paid: ₹" + newPaid +
+        "\nRemaining Due: ₹" + remainingDue
+    );
+
+    await loadFeeHistory();
+    await loadPendingFees();
+}   
     function showSection(sectionId){
 
     const sections = [
