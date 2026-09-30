@@ -1329,9 +1329,13 @@ if(!receiptWindow){
      document.getElementById("feeStudent").value = studentId;
 document.getElementById("feeMonth").value = feeMonth;
 document.getElementById("monthlyFee").value = monthlyFee;
-document.getElementById("previousDue").value = due;
-document.getElementById("totalPayable").value = Number(monthlyFee) + due;
-document.getElementById("amountPaid").value = newPaid;
+const receiptPreviousDue =
+    Math.max(Number(dueAmount) - Number(monthlyFee), 0);
+
+document.getElementById("previousDue").value = receiptPreviousDue;
+document.getElementById("totalPayable").value =
+    Number(monthlyFee) + receiptPreviousDue;
+document.getElementById("amountPaid").value = totalPaid;
 document.getElementById("dueFee").value = remainingDue;
 document.getElementById("paymentDate").value = today;
 
