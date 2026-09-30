@@ -962,6 +962,29 @@ document.getElementById("paymentDate").value = "";
 
         select.appendChild(option);
     });
+       const historySelect =
+        document.getElementById("historyStudent");
+
+    if(historySelect){
+
+        historySelect.innerHTML =
+            '<option value="">Select Student</option>';
+
+        students.forEach(function(student){
+
+            const option =
+                document.createElement("option");
+
+            option.value = student.id;
+
+            option.textContent =
+                student.Student_name +
+                " - Class " +
+                (student["Student class"] || "");
+
+            historySelect.appendChild(option);
+        });
+    }   
 } 
  async function loadFeeHistory(){
 
@@ -1304,7 +1327,177 @@ document.getElementById("paymentDate").value = today;
 printFeeReceipt(receiptWindow);
     await loadFeeHistory();
     await loadPendingFees();
-}   
+}  
+    async function loadStudentFeeHistory(){
+
+    const studentId =
+        document.getElementById("historyStudent").value;
+
+    const body =
+        document.getElementById("studentFeeHistoryBody");
+
+    const summary =
+        document.getElementById("studentFeeSummary");
+
+    if(!studentId){
+
+        body.innerHTML = `
+            <tr>
+                <td colspan="6"
+                    style="padding:15px;text-align:center;">
+                    Select a student
+                </td>
+            </tr>
+        `;
+
+        summary.innerHTML = "";
+        return;
+    }
+
+    body.innerHTML = `
+        <tr>
+            <td colspan="6"
+                style="padding:15px;text-align:center;">
+                Loading...
+            </td>
+        </tr>
+    `;
+
+    const { data, error } =
+        await supabaseClient
+        .from("Fees")
+        .select("*")
+        .eq("student_id", Number(studentId))
+        .order("fee_month", { ascending: true });
+
+    if(error){
+
+        body.innerHTML = `
+            <tr>
+                <td colspan="6"
+                    style="padding:15px;text-align:center;color:red;">
+                    ${error.message}
+                </td>
+            </tr>
+        `;
+
+        return;
+    }
+
+    if(!data || data.length === 0){
+
+        body.innerHTML = `
+            <tr>
+                <td colspan="6"
+                    style="padding:15px;text-align:center;">
+                    No fee history found
+                </td>
+            </tr>
+        `;
+
+        summary.innerHTML = "";
+        return;
+    }
+
+    let totalPaid = 0;
+    let totalDue = 0;
+
+    body.innerHTML = data.map(fee => {
+
+        const monthly =
+            Number(fee.monthly_fee || 0);
+
+        const paid =
+            Number(fee.amount_paid || 0);
+
+        const due =
+            Number(fee.due_fee || 0);
+
+        const totalPayable =
+            paid + due;
+
+        totalPaid += paid;
+        totalDue += due;
+
+        return `
+            <tr>
+                <td style="padding:10px;">
+                    ${fee.fee_month || "-"}
+                </td>
+
+                <td style="padding:10px;">
+                    ₹${monthly}
+                </td>
+
+                <td style="padding:10px;">
+                    ₹${totalPayable}
+                </td>
+
+                <td style="padding:10px;color:green;">
+                    ₹${paid}
+                </td>
+
+                <td style="padding:10px;color:red;">
+                    ₹${due}
+                </td>
+
+                <td style="padding:10px;">
+                    ${fee.payment_date || "-"}
+                </td>
+            </tr>
+        `;
+
+    }).join("");
+
+    summary.innerHTML = `
+        <div style="
+            display:flex;
+            gap:10px;
+            flex-wrap:wrap;
+        ">
+
+            <div style="
+                flex:1;
+                min-width:140px;
+                padding:12px;
+                background:#e8f5e9;
+                border-radius:8px;
+                color:#2e7d32;
+                font-weight:bold;
+            ">
+                💰 Total Paid<br>
+                ₹${totalPaid}
+            </div>
+
+            <div style="
+                flex:1;
+                min-width:140px;
+                padding:12px;
+                background:#ffebee;
+                border-radius:8px;
+                color:#c62828;
+                font-weight:bold;
+            ">
+                ⚠️ Total Due<br>
+                ₹${totalDue}
+            </div>
+
+            <div style="
+                flex:1;
+                min-width:140px;
+                padding:12px;
+                background:#e3f2fd;
+                border-radius:8px;
+                color:#0d47a1;
+                font-weight:bold;
+            ">
+                📚 Total Months<br>
+                ${data.length}
+            </div>
+
+        </div>
+    `;
+}
     function showSection(sectionId){
 
     const sections = [
@@ -1399,7 +1592,59 @@ printFeeReceipt(receiptWindow);
 </div> 
 <div id="feesSection" class="dashboard-section">
     <h2>💰 Fees Management</h2>
+    <div style="
+    margin-top:20px;
+    padding:15px;
+    background:#f8fafc;
+    border-radius:10px;
+    border:1px solid #e2e8f0;
+">
 
+    <h3 style="margin-top:0;color:#0d47a1;">
+        📊 Student Fee History
+    </h3>
+
+    <select
+        id="historyStudent"
+        onchange="loadStudentFeeHistory()"
+        style="
+            width:100%;
+            padding:12px;
+            border:1px solid #ccc;
+            border-radius:8px;
+        "
+    >
+        <option value="">Select Student</option>
+    </select>
+
+    <div id="studentFeeSummary" style="margin-top:15px;"></div>
+
+    <div style="overflow-x:auto;margin-top:15px;">
+        <table style="width:100%;border-collapse:collapse;">
+            <thead>
+                <tr style="background:#e3f2fd;">
+                    <th style="padding:10px;">Month</th>
+                    <th style="padding:10px;">Monthly Fee</th>
+                    <th style="padding:10px;">Total Payable</th>
+                    <th style="padding:10px;">Paid</th>
+                    <th style="padding:10px;">Due</th>
+                    <th style="padding:10px;">Payment Date</th>
+                </tr>
+            </thead>
+
+            <tbody id="studentFeeHistoryBody">
+                <tr>
+                    <td colspan="6"
+                        style="padding:15px;text-align:center;">
+                        Select a student
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+</div>
+    
     <div style="display:grid;gap:12px;">
 
         <select id="feeStudent" style="padding:12px;" onchange="updateDueFee()">
