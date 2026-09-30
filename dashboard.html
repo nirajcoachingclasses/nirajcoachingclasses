@@ -1266,9 +1266,8 @@ if(!receiptWindow){
     const totalPaid =
         Number(oldFee.amount_paid || 0) + newPaid;
 
-    const remainingDue =
-        Math.max(Number(oldFee.due_fee || 0) - newPaid, 0);
-
+   const remainingDue =
+    Math.max(Number(dueAmount) - newPaid, 0);
     const today =
         new Date().toISOString().split("T")[0];
 
