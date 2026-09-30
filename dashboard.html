@@ -1399,8 +1399,9 @@ printFeeReceipt(receiptWindow);
         return;
     }
 
-    let totalPaid = 0;
-    let totalDue = 0;
+   let totalPaid = 0;
+let totalDue = 0;
+let totalMonthlyFee = 0;
 
     body.innerHTML = data.map(fee => {
 
@@ -1416,9 +1417,9 @@ printFeeReceipt(receiptWindow);
         const totalPayable =
             paid + due;
 
-        totalPaid += paid;
-        totalDue += due;
-
+       totalPaid += paid;
+totalDue += due;
+totalMonthlyFee += monthly;
         return `
             <tr>
                 <td style="padding:10px;">
@@ -1449,6 +1450,7 @@ printFeeReceipt(receiptWindow);
 
     }).join("");
 
+        totalDue = Math.max(totalMonthlyFee - totalPaid, 0);
     summary.innerHTML = `
         <div style="
             display:flex;
