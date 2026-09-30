@@ -1026,7 +1026,7 @@ document.getElementById("paymentDate").value = "";
         body.appendChild(row);
     });
 }
-    function printFeeReceipt(){
+   function printFeeReceipt(receiptWindow){
 
     const studentSelect = document.getElementById("feeStudent");
     const studentName =
@@ -1064,7 +1064,14 @@ const receiptNumber = "REC-" + Date.now();
         return;
     }
 
-    const receiptWindow = window.open("", "_blank");
+   if(!receiptWindow){
+    receiptWindow = window.open("", "_blank");
+}
+
+if(!receiptWindow){
+    alert("Please allow pop-ups for this website.");
+    return;
+}
 
         receiptWindow.document.open();
     receiptWindow.document.write(`
@@ -1217,6 +1224,13 @@ const receiptNumber = "REC-" + Date.now();
     feeMonth
 ){
 
+     const receiptWindow = window.open("", "_blank");
+
+if(!receiptWindow){
+    alert("Please allow pop-ups for this website.");
+    return;
+}
+     
     const due = Number(dueAmount) || 0;
 
     const payment = Number(
@@ -1288,8 +1302,7 @@ document.getElementById("amountPaid").value = newPaid;
 document.getElementById("dueFee").value = remainingDue;
 document.getElementById("paymentDate").value = today;
 
-printFeeReceipt();
-     
+printFeeReceipt(receiptWindow);
     await loadFeeHistory();
     await loadPendingFees();
 }   
