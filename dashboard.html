@@ -917,7 +917,18 @@ const dueFee = Math.max(totalPayable - amountPaid, 0);
         alert("Please fill Student, Month and Monthly Fee.");
         return;
     }
+ const { data: existingFee } =
+    await supabaseClient
+    .from("Fees")
+    .select("id")
+    .eq("student_id", Number(studentId))
+    .eq("fee_month", feeMonth)
+    .limit(1);
 
+if(existingFee && existingFee.length > 0){
+    alert("⚠️ This student's fee for this month already exists.");
+    return;
+}
     const { error } = await supabaseClient
         .from("Fees")
         .insert([{
