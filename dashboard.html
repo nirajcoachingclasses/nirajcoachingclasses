@@ -1498,6 +1498,200 @@ printFeeReceipt(receiptWindow);
         </div>
     `;
 }
+    function printStudentFeeHistory(){
+
+    const studentId =
+        document.getElementById("historyStudent").value;
+
+    if(!studentId){
+        alert("Please select a student first.");
+        return;
+    }
+
+    const student =
+        students.find(function(s){
+            return String(s.id) === String(studentId);
+        });
+
+    if(!student){
+        alert("Student not found.");
+        return;
+    }
+
+    const historyBody =
+        document.getElementById("studentFeeHistoryBody");
+
+    const rows =
+        historyBody.querySelectorAll("tr");
+
+    if(!rows.length){
+        alert("No fee history found.");
+        return;
+    }
+
+    const printWindow =
+        window.open("", "_blank");
+
+    if(!printWindow){
+        alert("Please allow pop-ups for this website.");
+        return;
+    }
+
+    let tableRows = "";
+
+    rows.forEach(function(row){
+
+        const cells = row.querySelectorAll("td");
+
+        if(cells.length === 6){
+
+            tableRows += `
+                <tr>
+                    <td>${cells[0].innerText}</td>
+                    <td>${cells[1].innerText}</td>
+                    <td>${cells[2].innerText}</td>
+                    <td>${cells[3].innerText}</td>
+                    <td>${cells[4].innerText}</td>
+                    <td>${cells[5].innerText}</td>
+                </tr>
+            `;
+        }
+    });
+
+    const summary =
+        document.getElementById("studentFeeSummary").innerHTML;
+
+    printWindow.document.write(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Student Fee History</title>
+
+            <style>
+                body{
+                    font-family:Arial,sans-serif;
+                    padding:30px;
+                    color:#222;
+                }
+
+                .header{
+                    text-align:center;
+                    border-bottom:2px solid #1976d2;
+                    padding-bottom:15px;
+                    margin-bottom:20px;
+                }
+
+                .header img{
+                    width:70px;
+                    height:70px;
+                    object-fit:contain;
+                }
+
+                h1{
+                    margin:5px 0;
+                    color:#0d47a1;
+                }
+
+                h2{
+                    margin:5px 0;
+                    font-size:20px;
+                }
+
+                .student-info{
+                    margin:20px 0;
+                    padding:15px;
+                    border:1px solid #ddd;
+                    border-radius:8px;
+                }
+
+                table{
+                    width:100%;
+                    border-collapse:collapse;
+                    margin-top:20px;
+                }
+
+                th,td{
+                    border:1px solid #ccc;
+                    padding:10px;
+                    text-align:center;
+                }
+
+                th{
+                    background:#e3f2fd;
+                    color:#0d47a1;
+                }
+
+                .print-btn{
+                    margin-top:25px;
+                    padding:10px 20px;
+                    background:#1976d2;
+                    color:white;
+                    border:0;
+                    border-radius:6px;
+                    cursor:pointer;
+                }
+
+                @media print{
+                    .print-btn{
+                        display:none;
+                    }
+                }
+            </style>
+        </head>
+
+        <body>
+
+            <div class="header">
+                <img src="logo.png">
+                <h1>Niraj Coaching Classes</h1>
+                <h2>Student Fee History</h2>
+            </div>
+
+            <div class="student-info">
+                <strong>Student Name:</strong>
+                ${student.Student_name || "-"}
+                <br><br>
+
+                <strong>Father Name:</strong>
+                ${student.Father_name || "-"}
+                <br><br>
+
+                <strong>Class:</strong>
+                ${student["Student class"] || "-"}
+            </div>
+
+            ${summary}
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Month</th>
+                        <th>Monthly Fee</th>
+                        <th>Total Payable</th>
+                        <th>Paid</th>
+                        <th>Due</th>
+                        <th>Payment Date</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    ${tableRows}
+                </tbody>
+            </table>
+
+            <button
+                class="print-btn"
+                onclick="window.print()"
+            >
+                🖨️ Print
+            </button>
+
+        </body>
+        </html>
+    `);
+
+    printWindow.document.close();
+}
     function showSection(sectionId){
 
     const sections = [
@@ -1618,7 +1812,22 @@ printFeeReceipt(receiptWindow);
     </select>
 
     <div id="studentFeeSummary" style="margin-top:15px;"></div>
-
+    <button
+    onclick="printStudentFeeHistory()"
+    style="
+        margin-top:15px;
+        background:#1976d2;
+        color:white;
+        border:0;
+        padding:11px 18px;
+        border-radius:8px;
+        cursor:pointer;
+        font-weight:bold;
+    "
+>
+    🖨️ Print Fee History
+</button>
+        
     <div style="overflow-x:auto;margin-top:15px;">
         <table style="width:100%;border-collapse:collapse;">
             <thead>
