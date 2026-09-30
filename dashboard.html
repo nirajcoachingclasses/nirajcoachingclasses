@@ -1279,6 +1279,17 @@ const receiptNumber = "REC-" + Date.now();
         "\nRemaining Due: ₹" + remainingDue
     );
 
+     document.getElementById("feeStudent").value = studentId;
+document.getElementById("feeMonth").value = feeMonth;
+document.getElementById("monthlyFee").value = monthlyFee;
+document.getElementById("previousDue").value = due;
+document.getElementById("totalPayable").value = Number(monthlyFee) + due;
+document.getElementById("amountPaid").value = newPaid;
+document.getElementById("dueFee").value = remainingDue;
+document.getElementById("paymentDate").value = today;
+
+printFeeReceipt();
+     
     await loadFeeHistory();
     await loadPendingFees();
 }   
