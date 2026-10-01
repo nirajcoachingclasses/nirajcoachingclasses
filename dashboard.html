@@ -1258,12 +1258,7 @@ if(!receiptWindow){
     feeMonth
 ){
 
-     const receiptWindow = window.open("", "_blank");
-
-if(!receiptWindow){
-    alert("Please allow pop-ups for this website.");
-    return;
-}
+     
      
     const due = Number(dueAmount) || 0;
 
@@ -1282,7 +1277,13 @@ if(!receiptWindow){
         alert("Payment cannot be greater than pending fee.");
         return;
     }
+   const receiptWindow = window.open("", "_blank");
 
+if(!receiptWindow){
+    alert("Please allow pop-ups for this website.");
+    return;
+}
+     
     const newPaid = payment;
 
     const { data: oldFee, error: fetchError } =
