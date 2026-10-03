@@ -1722,6 +1722,92 @@ totalMonthlyFee += monthly;
 
     printWindow.document.close();
 }
+  async function createCurrentMonthFees(){
+
+    const now = new Date();
+
+    const currentMonth =
+        now.getFullYear() + "-" +
+        String(now.getMonth() + 1).padStart(2, "0") +
+        "-01";
+
+    const { data: studentsData, error: studentsError } =
+        await supabaseClient
+            .from("Student")
+            .select("*");
+
+    if(studentsError){
+        console.error("Student load error:", studentsError);
+        return;
+    }
+
+    const { data: feesData, error: feesError } =
+        await supabaseClient
+            .from("Fees")
+            .select("*")
+            .order("fee_month", { ascending: false });
+
+    if(feesError){
+        console.error("Fee load error:", feesError);
+        return;
+    }
+
+    for(const student of (studentsData || [])){
+
+        const studentId = Number(student.id);
+
+       const studentFees = (feesData || [])
+    .filter(fee =>
+        Number(fee.student_id) === studentId &&
+        String(fee.fee_month) <= currentMonth
+    );
+        if(studentFees.length === 0){
+            continue;
+        }
+
+        const currentFee = studentFees.find(
+            fee => fee.fee_month === currentMonth
+        );
+
+        if(currentFee){
+            continue;
+        }
+
+        const latestFee = studentFees[0];
+
+        const monthlyFee =
+            Number(latestFee.monthly_fee || 0);
+
+        const previousDue =
+            Number(latestFee.due_fee || 0);
+
+        const newDue =
+            monthlyFee + previousDue;
+
+        if(monthlyFee <= 0){
+            continue;
+        }
+
+        const { error: insertError } =
+            await supabaseClient
+                .from("Fees")
+                .insert([{
+                    student_id: studentId,
+                    fee_month: currentMonth,
+                    monthly_fee: monthlyFee,
+                    amount_paid: 0,
+                    due_fee: newDue,
+                    payment_date: null
+                }]);
+
+        if(insertError){
+            console.error(
+                "Monthly fee creation failed:",
+                insertError
+            );
+        }
+    }
+}  
     function showSection(sectionId){
 
     const sections = [
@@ -1740,9 +1826,13 @@ totalMonthlyFee += monthly;
         }
     });
 }
- document.addEventListener("DOMContentLoaded", function(){
+document.addEventListener("DOMContentLoaded", async function(){
+
+    await createCurrentMonthFees();
+
     showSection("studentsSection");
-});  
+
+}); 
 </script>
 <div id="editModal" style="
     display:none;
