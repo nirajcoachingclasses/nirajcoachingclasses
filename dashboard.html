@@ -452,59 +452,49 @@ const seenStudents = new Set();
 
             <td style="padding:10px;">
                 ${student ? student["Student class"] : ""}
-            </td>
 
-            <td style="padding:10px;">
-                ${fee.fee_month || ""}
-            </td>
+</td>
 
-            <td style="padding:10px;">
-                ₹${totalPayable}
-            </td>
+<td style="padding:10px;">
+    ₹${totalPayable}
+</td>
 
-            <td style="padding:10px;">
-                ₹${fee.amount_paid || 0}
-            </td>
+<td style="padding:10px;">
+    ₹${fee.amount_paid || 0}
+</td>
 
-            <td style="padding:10px;">
-                ₹${fee.due_fee || 0}
-            </td>
+<td style="padding:10px;">
+    ₹${fee.due_fee || 0}
+</td>
 
-            <td style="padding:10px;">
-                <a
-                    href="https://wa.me/91${student ? student.Mobile_number : ""}?text=Dear%20Parent,%20your%20child%20${student ? student.Student_name : ""}%20has%20a%20pending%20fee%20of%20₹${fee.due_fee || 0}.%20Please%20pay%20the%20pending%20fee.%20Thank%20you."
-                    target="_blank"
-                    style="background:#25D366;color:white;padding:7px 10px;border-radius:5px;text-decoration:none;"
-                >
-                    WhatsApp
-                </a>
-               <br><br>
+<td style="padding:10px;">
+    <a
+        href="https://wa.me/91${student ? student.Mobile_number : ''}?text=Dear%20Parent,%20your%20child%20${student ? student.Student_name : ''}%20has%20a%20pending%20fee%20of%20₹${fee.due_fee || 0}%20for%20${fee.fee_month || ''}."
+        target="_blank"
+        style="background:#25D366;color:white;padding:7px 10px;border-radius:5px;text-decoration:none;"
+    >
+        WhatsApp
+    </a>
+    <br><br>
 
-<button
-    onclick="collectPendingFee(
-        '${fee.id}',
-        '${fee.student_id}',
-        '${fee.due_fee || 0}',
-        '${fee.monthly_fee || 0}',
-        '${fee.fee_month || ""}'
-    )"
-    style="
-        background:#1976d2;
-        color:white;
-        padding:7px 10px;
-        border:0;
-        border-radius:5px;
-        cursor:pointer;
-    "
->
-    💵 Collect
-</button> 
-            </td>
-        `;
+    <button
+        onclick="collectPendingFee(
+            '${fee.id}',
+            '${fee.student_id}',
+            '${fee.due_fee || 0}',
+            '${fee.monthly_fee || 0}',
+            '${fee.fee_month || ''}'
+        )"
+        style="background:#1976d2;color:white;padding:7px 10px;border:0;border-radius:5px;cursor:pointer;"
+    >
+        💵 Collect
+    </button>
+</td>
+`;
 
-        body.appendChild(row);
-    });
-}
+body.appendChild(row);
+});
+    }
 async function loadStudents(){
 
     const status =
