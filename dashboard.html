@@ -892,7 +892,8 @@ async function saveStudentEdit(){
 
     document.getElementById("previousDue").value = previousDue;
 
-    const totalPayable = monthly + previousDue;
+    const totalPayable =
+    Math.max(monthly + previousDue, 0);
 
     document.getElementById("totalPayable").value = totalPayable;
 
@@ -1433,12 +1434,12 @@ let runningDue = 0;
         const previousDue = runningDue;
 
 const totalPayable =
-    monthly + previousDue;
+    Math.max(monthly + previousDue, 0);
 
 runningDue =
-    Math.max(previousDue + monthly - paid, 0);
+    previousDue + monthly - paid;
 
-const currentDue = runningDue;
+const currentDue = Math.max(runningDue, 0);
 
 totalPaid += paid;
 totalMonthlyFee += monthly;
@@ -1472,7 +1473,7 @@ totalMonthlyFee += monthly;
 
     }).join("");
 
-        totalDue = Math.max(totalMonthlyFee - totalPaid, 0);
+        totalDue = Math.max(runningDue, 0);
     summary.innerHTML = `
         <div style="
             display:flex;
@@ -1722,8 +1723,7 @@ totalMonthlyFee += monthly;
 
     const currentMonth =
         now.getFullYear() + "-" +
-        String(now.getMonth() + 1).padStart(2, "0") +
-        "-01";
+        String(now.getMonth() + 1).padStart(2, "0");
 
     const { data: studentsData, error: studentsError } =
         await supabaseClient
@@ -1750,17 +1750,25 @@ totalMonthlyFee += monthly;
 
         const studentId = Number(student.id);
 
-       const studentFees = (feesData || [])
-    .filter(fee =>
-        Number(fee.student_id) === studentId &&
-        String(fee.fee_month) <= currentMonth
-    );
+        const studentFees = (feesData || [])
+            .filter(fee =>
+                Number(fee.student_id) === studentId &&
+                String(fee.fee_month || "").slice(0, 7) <= currentMonth
+            )
+            .sort((a, b) =>
+                String(b.fee_month || "").slice(0, 7).localeCompare(
+                    String(a.fee_month || "").slice(0, 7)
+                )
+            );
+
         if(studentFees.length === 0){
             continue;
         }
 
-        const currentFee = studentFees.find(
-            fee => fee.fee_month === currentMonth
+        // Compare by year and month so date values and timestamps match alike.
+        const currentFee = (feesData || []).some(fee =>
+            Number(fee.student_id) === studentId &&
+            String(fee.fee_month || "").slice(0, 7) === currentMonth
         );
 
         if(currentFee){
@@ -1772,11 +1780,15 @@ totalMonthlyFee += monthly;
         const monthlyFee =
             Number(latestFee.monthly_fee || 0);
 
-        const previousDue =
-            Number(latestFee.due_fee || 0);
+        // Net prior balance includes unpaid dues and any overpayment credit.
+        const previousBalance = studentFees.reduce((balance, fee) =>
+            balance +
+            Number(fee.monthly_fee || 0) -
+            Number(fee.amount_paid || 0),
+            0
+        );
 
-        const newDue =
-            monthlyFee + previousDue;
+        const newDue = Math.max(monthlyFee + previousBalance, 0);
 
         if(monthlyFee <= 0){
             continue;
@@ -1787,7 +1799,7 @@ totalMonthlyFee += monthly;
                 .from("Fees")
                 .insert([{
                     student_id: studentId,
-                    fee_month: currentMonth,
+                    fee_month: currentMonth + "-01",
                     monthly_fee: monthlyFee,
                     amount_paid: 0,
                     due_fee: newDue,
