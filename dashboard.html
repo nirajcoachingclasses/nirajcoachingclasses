@@ -875,16 +875,21 @@ async function saveStudentEdit(){
 
         const { data, error } = await supabaseClient
             .from("Fees")
-            .select("monthly_fee, due_fee, fee_month")
+            .select("monthly_fee, amount_paid, fee_month")
             .eq("student_id", Number(studentId))
             .lt("fee_month", feeMonth)
-            .order("fee_month", { ascending: false })
-            .limit(1);
+            .order("fee_month", { ascending: true });
 
         if(!error && data && data.length > 0){
 
-            monthly = Number(data[0].monthly_fee) || monthly;
-            previousDue = Number(data[0].due_fee) || 0;
+            const latestFee = data[data.length - 1];
+            monthly = Number(latestFee.monthly_fee) || monthly;
+            previousDue = data.reduce((balance, fee) =>
+                balance +
+                Number(fee.monthly_fee || 0) -
+                Number(fee.amount_paid || 0),
+                0
+            );
 
             document.getElementById("monthlyFee").value = monthly;
         }
@@ -1215,7 +1220,7 @@ if(!receiptWindow){
                     </tr>
 
                     <tr>
-                        <td>Previous Due</td>
+                        <td>Previous Due / Credit</td>
                         <td>₹${previousDue}</td>
                     </tr>
 
@@ -2000,7 +2005,7 @@ document.addEventListener("DOMContentLoaded", async function(){
        value="0"
        oninput="updateDueFee()"
        style="padding:12px;">
-        <label>Previous Due</label>
+        <label>Previous Due / Credit</label>
          <input type="number" id="previousDue"
        placeholder="Previous Due"
        value="0"
