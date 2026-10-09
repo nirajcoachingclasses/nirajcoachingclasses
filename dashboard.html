@@ -330,7 +330,8 @@ async function checkLogin(){
         return;
     }
 
-    loadStudents();
+    await createCurrentMonthFees();
+    await loadStudents();
 }
 
 async function loadFeeHistory(){
@@ -1722,13 +1723,27 @@ totalMonthlyFee += monthly;
 
     printWindow.document.close();
 }
-  async function createCurrentMonthFees(){
+let currentMonthFeesCreating = false;
+let observedDashboardMonth = "";
 
+function getCurrentFeeMonth(){
     const now = new Date();
-
-    const currentMonth =
-        now.getFullYear() + "-" +
+    return now.getFullYear() + "-" +
         String(now.getMonth() + 1).padStart(2, "0");
+}
+
+async function createCurrentMonthFees(){
+
+    // Prevent overlapping calls in this page (for example, during login and refresh).
+    if(currentMonthFeesCreating){
+        return;
+    }
+
+    currentMonthFeesCreating = true;
+
+    try{
+
+    const currentMonth = getCurrentFeeMonth();
 
     const { data: studentsData, error: studentsError } =
         await supabaseClient
@@ -1818,7 +1833,10 @@ totalMonthlyFee += monthly;
             );
         }
     }
-}  
+    } finally {
+        currentMonthFeesCreating = false;
+    }
+}
     function showSection(sectionId){
 
     const sections = [
@@ -1838,10 +1856,21 @@ totalMonthlyFee += monthly;
     });
 }
 document.addEventListener("DOMContentLoaded", async function(){
-
-    await createCurrentMonthFees();
-
     showSection("studentsSection");
+    observedDashboardMonth = getCurrentFeeMonth();
+
+    // If the dashboard stays open across a month boundary, create that month's
+    // fees on the next minute check and refresh the student/fee tables.
+    window.setInterval(async function(){
+        const currentMonth = getCurrentFeeMonth();
+        if(currentMonth === observedDashboardMonth){
+            return;
+        }
+
+        await createCurrentMonthFees();
+        await loadStudents();
+        observedDashboardMonth = currentMonth;
+    }, 60000);
 
 }); 
 </script>
