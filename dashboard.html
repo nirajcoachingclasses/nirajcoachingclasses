@@ -455,7 +455,9 @@ const seenStudents = new Set();
                 ${student ? student["Student class"] : ""}
 
 </td>
-
+<td style="padding:10px;">
+    ${fee.fee_month || ""}
+</td>
 <td style="padding:10px;">
     ₹${totalPayable}
 </td>
