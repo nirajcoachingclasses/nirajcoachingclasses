@@ -282,68 +282,182 @@ body{background:#f5f7fb;color:#172033;font-family:Inter,Arial,sans-serif;}
 @media(max-width:600px){.modern-header{height:64px;padding:8px 12px}.brand-logo{width:40px;height:40px;border-radius:11px}.brand-logo img{width:35px;height:35px}.brand-name{font-size:14px}.brand-sub{font-size:9px}.modern-logout{padding:8px 10px;font-size:11px}.icon-action{width:34px;height:34px}.dashboard-shell,.container{padding:0 10px}.welcome-card{min-height:105px;padding:18px;border-radius:16px}.welcome-title{font-size:19px}.welcome-sub{font-size:10px}.welcome-badge{font-size:10px;padding:7px 9px}.mini-stats{gap:8px;margin:10px 0}.mini-stat{padding:10px;border-radius:12px;gap:8px}.mini-icon{width:34px;height:34px}.mini-stat b{font-size:13px}.compact-tabs{grid-template-columns:repeat(4,1fr);gap:5px}.compact-tabs button{padding:9px 3px;font-size:11px}.compact-tabs button span{display:block;margin-top:2px}.content-nav{padding:9px}.search-row{margin-top:10px}.dashboard-section{padding:12px;margin:10px 0}}
 
 </style>
+
+<style id="premium-dashboard-overrides">
+:root{
+  --nav:#0b1b33;--nav2:#122a4a;--blue:#1769e8;--blue2:#2e7df6;
+  --bg:#f3f7fc;--text:#0f1f3d;--muted:#70809b;--line:#e3eaf4;
+  --card:#fff;--shadow:0 8px 24px rgba(15,31,61,.08);
+}
+*{box-sizing:border-box}
+body{margin:0!important;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Arial,sans-serif!important;background:var(--bg)!important;color:var(--text)!important}
+.modern-header{display:none!important}
+.dashboard-shell{display:none!important}
+#status{display:none!important}
+.premium-layout{min-height:100vh;display:flex;background:var(--bg)}
+.premium-sidebar{width:236px;background:linear-gradient(180deg,#08172b,#102746);color:#fff;position:fixed;inset:0 auto 0 0;z-index:50;padding:18px 12px;overflow-y:auto}
+.premium-brand{text-align:center;padding:4px 4px 18px;border-bottom:1px solid rgba(255,255,255,.1);margin-bottom:12px}
+.premium-brand img{width:74px;height:74px;object-fit:contain;border-radius:20px;background:#fff;padding:5px}
+.premium-brand h1{font-size:20px;line-height:1.05;margin:8px 0 3px;font-weight:800}
+.premium-brand p{font-size:10px;letter-spacing:1.3px;color:#cbd8eb;margin:0}
+.premium-nav{display:grid;gap:5px}
+.premium-nav button{width:100%;border:0;background:transparent;color:#e7eef9;text-align:left;border-radius:11px;padding:11px 12px;font-size:14px;font-weight:650;cursor:pointer;display:flex;align-items:center;gap:12px}
+.premium-nav button:hover,.premium-nav button.active{background:linear-gradient(90deg,#087bf7,#1266dd);color:#fff}
+.premium-nav .nav-icon{width:25px;text-align:center;font-size:19px}
+.premium-sidebar-quote{margin:18px 8px 0;padding:18px 12px;border-radius:16px;background:linear-gradient(145deg,rgba(255,255,255,.08),rgba(255,255,255,.02));border:1px solid rgba(255,255,255,.12);font-size:13px;line-height:1.5;color:#ffd84d;text-align:center}
+.premium-main{margin-left:236px;width:calc(100% - 236px);min-width:0}
+.premium-topbar{height:70px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:16px;padding:0 24px;position:sticky;top:0;z-index:40}
+.premium-menu{display:none;border:0;background:transparent;font-size:25px;color:#16365e}
+.premium-search{height:40px;max-width:500px;flex:1;border:1px solid #dbe4f0;border-radius:9px;padding:0 15px;font-size:13px;outline:none;background:#fbfdff}
+.premium-search:focus{border-color:#8ab8ff;box-shadow:0 0 0 3px rgba(23,105,232,.1)}
+.premium-top-actions{margin-left:auto;display:flex;align-items:center;gap:12px}
+.premium-icon-btn{width:40px;height:40px;border:0;border-radius:10px;background:#f1f5fb;color:#18375f;font-size:19px;cursor:pointer}
+.premium-profile{display:flex;align-items:center;gap:9px;padding-left:4px}
+.premium-avatar{width:40px;height:40px;border-radius:50%;object-fit:cover;border:2px solid #e5edf8;background:#eaf1fb}
+.premium-profile b{display:block;font-size:13px}
+.premium-profile span{display:block;font-size:11px;color:var(--muted);margin-top:2px}
+.premium-content{padding:20px 22px 30px;max-width:1500px;margin:auto}
+.premium-welcome{min-height:190px;border-radius:18px;background:linear-gradient(100deg,#11449d 0%,#1c68dc 52%,#5c59d9 100%);color:#fff;padding:28px 30px;display:flex;align-items:center;justify-content:space-between;position:relative;overflow:hidden;box-shadow:var(--shadow)}
+.premium-welcome:after{content:"";position:absolute;width:250px;height:250px;border-radius:50%;right:-80px;top:-120px;background:rgba(255,255,255,.1)}
+.premium-welcome small{font-weight:700;letter-spacing:.5px;opacity:.9}
+.premium-welcome h2{font-size:30px;margin:8px 0 8px;line-height:1.1}
+.premium-welcome p{margin:0;color:#e9f1ff;font-size:14px}
+.premium-admin-pill{position:relative;z-index:1;background:#ffd84d;color:#14274a;border-radius:20px;padding:8px 14px;font-weight:800;font-size:13px}
+.premium-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:14px 0}
+.premium-stat{background:#fff;border:1px solid var(--line);border-radius:15px;padding:15px;display:flex;align-items:center;gap:12px;box-shadow:0 4px 16px rgba(15,31,61,.04);cursor:pointer}
+.premium-stat-icon{width:43px;height:43px;border-radius:13px;display:grid;place-items:center;font-size:21px;flex:0 0 auto}
+.premium-stat b{font-size:21px;display:block;line-height:1.1}
+.premium-stat span{font-size:12px;color:var(--muted)}
+.s-blue .premium-stat-icon{background:#e8f1ff;color:#1769e8}.s-green .premium-stat-icon{background:#e5f8ef;color:#0aa866}.s-red .premium-stat-icon{background:#ffedef;color:#ef3e4d}.s-purple .premium-stat-icon{background:#f0eaff;color:#7b4de8}
+.premium-modules{background:#fff;border:1px solid var(--line);border-radius:17px;padding:15px;margin-bottom:14px;box-shadow:0 4px 16px rgba(15,31,61,.04)}
+.premium-modules-title{font-size:11px;font-weight:800;letter-spacing:1px;color:#8997ac;text-transform:uppercase;margin:0 0 10px}
+.premium-module-grid{display:grid;grid-template-columns:repeat(8,1fr);gap:9px}
+.premium-module{border:1px solid #e6edf6;background:#f9fbfe;border-radius:12px;padding:11px 6px;text-align:center;cursor:pointer;color:#253956;font-weight:700;font-size:11px}
+.premium-module:hover{background:#eef5ff;border-color:#b9d4ff;color:#1769e8}
+.premium-module i{display:grid;place-items:center;width:34px;height:34px;border-radius:10px;margin:0 auto 7px;font-style:normal;font-size:17px}
+.m1 i{background:#e7f0ff}.m2 i{background:#e2f8ee}.m3 i{background:#fff0d8}.m4 i{background:#ffe7eb}.m5 i{background:#eee8ff}.m6 i{background:#ffe7f1}.m7 i{background:#e2f7f4}.m8 i{background:#f0eafa}
+.premium-grid2{display:grid;grid-template-columns:1.45fr .85fr;gap:14px;margin-bottom:14px}
+.premium-panel{background:#fff;border:1px solid var(--line);border-radius:17px;padding:18px;box-shadow:0 4px 16px rgba(15,31,61,.04)}
+.premium-panel h3{margin:0;font-size:15px}.premium-panel-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px}.premium-panel-head span{font-size:11px;color:var(--muted);background:#f3f6fb;padding:7px 10px;border-radius:8px}
+.fee-bars{height:175px;display:flex;align-items:end;gap:13px;padding:10px 5px 0;border-bottom:1px solid #e5ebf3}
+.fee-bar-wrap{height:100%;flex:1;display:flex;flex-direction:column;justify-content:end;align-items:center;gap:6px}.fee-bar{width:72%;max-width:42px;border-radius:7px 7px 0 0;background:linear-gradient(180deg,#2c7bf6,#74adff);min-height:4px}.fee-bar-label{font-size:10px;color:#7d8ba0}
+.overview-ring{width:150px;height:150px;border-radius:50%;margin:3px auto 12px;background:conic-gradient(#13bd78 0 70%,#f04452 70% 88%,#2879eb 88% 100%);display:grid;place-items:center}
+.overview-ring:after{content:"";width:102px;height:102px;border-radius:50%;background:#fff}
+.ring-center{position:absolute;text-align:center;font-weight:800;font-size:22px}.ring-center span{display:block;font-size:11px;color:var(--muted);font-weight:500}
+.legend{display:grid;gap:7px;font-size:12px}.legend div{display:flex;justify-content:space-between}.legend label:before{content:"";display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:7px;background:#13bd78}.legend .pending label:before{background:#f04452}.legend .new label:before{background:#2879eb}
+.premium-grid3{display:grid;grid-template-columns:1.45fr .85fr;gap:14px}
+.premium-student-row{display:grid;grid-template-columns:42px 1.2fr 1fr .9fr auto;gap:10px;align-items:center;padding:9px 0;border-bottom:1px solid #edf1f6;font-size:11px}.premium-student-row:last-child{border-bottom:0}.premium-student-row img{width:36px;height:36px;border-radius:10px;object-fit:cover;background:#eef3f9}.premium-status{padding:5px 8px;border-radius:20px;font-weight:700;font-size:10px;display:inline-block}.paid{background:#dff8eb;color:#0a9b5b}.due{background:#ffe6e9;color:#e23c4a}.premium-view{font-size:11px;color:#1769e8;font-weight:700;cursor:pointer}
+.premium-empty{padding:30px;text-align:center;color:var(--muted);font-size:13px}
+.container{display:none!important;margin:0!important;padding:0!important;max-width:none!important}
+.dashboard-section{margin:20px 22px!important;background:#fff!important;border:1px solid var(--line)!important;border-radius:17px!important;box-shadow:var(--shadow)!important;padding:18px!important}
+.dashboard-section h2{font-size:20px!important;color:#153e78!important;border-bottom:2px solid #e7eef8!important}
+.table-box{margin:0 22px!important;background:#fff!important;border:1px solid var(--line);border-radius:17px!important;box-shadow:var(--shadow)!important}
+#studentsSection{display:none}
+table{font-size:13px}
+th{background:#edf5ff!important;color:#164d99!important}
+@media(max-width:1050px){.premium-sidebar{width:205px}.premium-main{margin-left:205px;width:calc(100% - 205px)}.premium-module-grid{grid-template-columns:repeat(4,1fr)}.premium-stats{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:760px){
+ .premium-sidebar{width:250px;transform:translateX(-100%);transition:.25s}.premium-sidebar.open{transform:translateX(0)}
+ .premium-main{margin-left:0;width:100%}.premium-topbar{padding:0 12px;height:62px}.premium-menu{display:block}.premium-profile div{display:none}.premium-search{max-width:none}.premium-content{padding:12px}.premium-welcome{min-height:145px;padding:22px}.premium-welcome h2{font-size:24px}.premium-admin-pill{display:none}.premium-stats{gap:8px}.premium-stat{padding:11px}.premium-stat b{font-size:17px}.premium-module-grid{grid-template-columns:repeat(4,1fr);gap:6px}.premium-module{padding:9px 3px;font-size:10px}.premium-grid2,.premium-grid3{grid-template-columns:1fr}.premium-student-row{grid-template-columns:38px 1fr auto}.premium-student-row .father,.premium-student-row .mobile{display:none}
+}
+</style>
+
 </head>
 
 <body>
+<div class="premium-layout">
+  <aside class="premium-sidebar" id="premiumSidebar">
+    <div class="premium-brand">
+      <img src="logo.png" alt="Niraj Coaching Classes">
+      <h1>NIRAJ<br>Coaching Classes</h1>
+      <p>ESTD-2018</p>
+    </div>
+    <nav class="premium-nav">
+      <button class="active" onclick="showSection('dashboardHomeSection');setNav(this)"><span class="nav-icon">⌂</span>Dashboard</button>
+      <button onclick="showSection('studentsSection');setNav(this)"><span class="nav-icon">👥</span>Students</button>
+      <button onclick="showSection('feesSection');setNav(this)"><span class="nav-icon">₹</span>Fees</button>
+      <button onclick="showSection('pendingSection');setNav(this)"><span class="nav-icon">⚠</span>Pending Fees</button>
+      <button onclick="showSection('historySection');setNav(this)"><span class="nav-icon">▣</span>Fee History</button>
+      <button onclick="showSection('studentLoginSection');setNav(this)"><span class="nav-icon">🔐</span>Student Login</button>
+      <button onclick="showSection('videosSection');loadMedia('videos');setNav(this)"><span class="nav-icon">▶</span>Videos</button>
+      <button onclick="showSection('photosSection');loadMedia('photos');setNav(this)"><span class="nav-icon">▧</span>Photos</button>
+      <button onclick="showSection('pdfsSection');loadMedia('pdfs');setNav(this)"><span class="nav-icon">▤</span>PDFs</button>
+    </nav>
+    <div class="premium-sidebar-quote">“शिक्षा ही सफलता की कुंजी है।”</div>
+  </aside>
 
-<header class="modern-header">
-    <div class="brand-wrap">
-        <div class="brand-logo"><img src="logo.png" alt="Niraj Coaching Classes"></div>
-        <div class="brand-text">
-            <div class="brand-name">Niraj Coaching Classes</div>
-            <div class="brand-sub">Admin Dashboard <span>•</span> Estd-2018</div>
+  <main class="premium-main">
+    <header class="premium-topbar">
+      <button class="premium-menu" onclick="document.getElementById('premiumSidebar').classList.toggle('open')">☰</button>
+      <input id="search" class="premium-search" type="text" placeholder="Search student name, father name or mobile...">
+      <div class="premium-top-actions">
+        <button class="premium-icon-btn" onclick="loadStudents()" title="Refresh">↻</button>
+        <div class="premium-profile">
+          <img class="premium-avatar" src="logo.png" alt="Admin">
+          <div><b>Niraj Kumar</b><span>Admin</span></div>
         </div>
-    </div>
-    <div class="header-actions">
-        <button class="icon-action" onclick="loadStudents()" title="Refresh">↻</button>
-        <button class="logout modern-logout" onclick="logout()">Logout</button>
-    </div>
-</header>
+        <button class="premium-icon-btn" onclick="logout()" title="Logout">↪</button>
+      </div>
+    </header>
 
-<div class="dashboard-shell">
-    <div class="welcome-card">
+    <section id="dashboardHomeSection" class="premium-content">
+      <div class="premium-welcome">
         <div>
-            <div class="welcome-kicker">WELCOME BACK 👋</div>
-            <div class="welcome-title">Manage your coaching, simply.</div>
-            <div class="welcome-sub">Students, fees and study content — everything in one place.</div>
+          <small>WELCOME BACK! 👋</small>
+          <h2>Niraj Kumar Singh <span class="premium-admin-pill">Admin</span></h2>
+          <p>Niraj Coaching Classes &nbsp; • &nbsp; Chhotaipatti, Darbhanga, Bihar</p>
+          <p style="margin-top:12px;font-size:18px;font-weight:700">“ सीखो आज, बेहतर कल के लिए ”</p>
         </div>
-        <div class="welcome-badge"><span>📚</span> Admin</div>
-    </div>
-
-    <div class="mini-stats">
-        <button class="mini-stat blue" onclick="showSection('studentsSection')">
-            <span class="mini-icon">👨‍🎓</span><span><b id="dashboardStudentCount">—</b><small>Total Students</small></span>
-        </button>
-        <button class="mini-stat green" onclick="showSection('feesSection')">
-            <span class="mini-icon">₹</span><span><b>Fees</b><small>Collect & Track</small></span>
-        </button>
-        <button class="mini-stat red" onclick="showSection('pendingSection')">
-            <span class="mini-icon">!</span><span><b>Pending</b><small>Check Due Fees</small></span>
-        </button>
-        <button class="mini-stat purple" onclick="showSection('historySection')">
-            <span class="mini-icon">⌁</span><span><b>History</b><small>Fee Records</small></span>
-        </button>
-    </div>
-
-    <div class="content-nav">
-        <div class="nav-label">QUICK ACCESS</div>
-        <div class="dashboard-tabs compact-tabs">
-            <button class="active" onclick="showSection('studentsSection')">👨‍🎓 <span>Students</span></button>
-            <button onclick="showSection('studentLoginSection')">🔐 <span>Student Login</span></button>
-            <button onclick="showSection('feesSection')">💰 <span>Fees</span></button>
-            <button onclick="showSection('pendingSection')">⚠️ <span>Pending</span></button>
-            <button onclick="showSection('historySection')">📋 <span>History</span></button>
-            <button onclick="showSection('videosSection'); loadMedia('videos')">🎥 <span>Videos</span></button>
-            <button onclick="showSection('photosSection'); loadMedia('photos')">🖼️ <span>Photos</span></button>
-            <button onclick="showSection('pdfsSection'); loadMedia('pdfs')">📄 <span>PDFs</span></button>
+        <div style="text-align:right;position:relative;z-index:1">
+          <img src="logo.png" alt="Niraj Coaching Classes" style="width:105px;height:105px;object-fit:contain;background:rgba(255,255,255,.12);border-radius:22px;padding:8px">
         </div>
-    </div>
+      </div>
 
-    <div class="search-row">
-        <span class="search-symbol">⌕</span>
-        <input type="text" id="search" class="search" placeholder="Search student name, father name or mobile...">
-    </div>
-</div>
+      <div class="premium-stats">
+        <button class="premium-stat s-blue" onclick="showSection('studentsSection');setNavByText('Students')"><span class="premium-stat-icon">👥</span><span><b id="dashboardStudentCount">0</b><span>Total Students</span></span></button>
+        <button class="premium-stat s-green" onclick="showSection('feesSection');setNavByText('Fees')"><span class="premium-stat-icon">₹</span><span><b id="dashboardCollection">₹0</b><span>Total Collection</span></span></button>
+        <button class="premium-stat s-red" onclick="showSection('pendingSection');setNavByText('Pending Fees')"><span class="premium-stat-icon">!</span><span><b id="dashboardPending">₹0</b><span>Pending Fees</span></span></button>
+        <button class="premium-stat s-purple" onclick="showSection('historySection');setNavByText('Fee History')"><span class="premium-stat-icon">▣</span><span><b id="dashboardRecords">0</b><span>Fee Records</span></span></button>
+      </div>
+
+      <div class="premium-modules">
+        <div class="premium-modules-title">Quick Access</div>
+        <div class="premium-module-grid">
+          <button class="premium-module m1" onclick="showSection('studentsSection');setNavByText('Students')"><i>👥</i>Students</button>
+          <button class="premium-module m2" onclick="showSection('feesSection');setNavByText('Fees')"><i>₹</i>Fees</button>
+          <button class="premium-module m3" onclick="showSection('pendingSection');setNavByText('Pending Fees')"><i>⚠</i>Pending</button>
+          <button class="premium-module m4" onclick="showSection('historySection');setNavByText('Fee History')"><i>▣</i>History</button>
+          <button class="premium-module m5" onclick="showSection('studentLoginSection');setNavByText('Student Login')"><i>🔐</i>Login</button>
+          <button class="premium-module m6" onclick="showSection('videosSection');loadMedia('videos');setNavByText('Videos')"><i>▶</i>Videos</button>
+          <button class="premium-module m7" onclick="showSection('photosSection');loadMedia('photos');setNavByText('Photos')"><i>▧</i>Photos</button>
+          <button class="premium-module m8" onclick="showSection('pdfsSection');loadMedia('pdfs');setNavByText('PDFs')"><i>▤</i>PDFs</button>
+        </div>
+      </div>
+
+      <div class="premium-grid2">
+        <div class="premium-panel">
+          <div class="premium-panel-head"><h3>📊 Fee Collection</h3><span>Recent Months</span></div>
+          <div id="feeBars" class="fee-bars"><div class="premium-empty">Loading fee data...</div></div>
+        </div>
+        <div class="premium-panel">
+          <div class="premium-panel-head"><h3>📈 Student Overview</h3><span>Current</span></div>
+          <div id="studentRingWrap" style="position:relative"><div class="overview-ring"></div><div class="ring-center"><span id="ringTotal">0</span>Total</div></div>
+          <div class="legend"><div><label>Fee Paid</label><b id="ringPaid">0</b></div><div class="pending"><label>Pending</label><b id="ringPending">0</b></div><div class="new"><label>Students</label><b id="ringStudents">0</b></div></div>
+        </div>
+      </div>
+
+      <div class="premium-grid3">
+        <div class="premium-panel">
+          <div class="premium-panel-head"><h3>👥 Recent Students</h3><span class="premium-view" onclick="showSection('studentsSection');setNavByText('Students')">View All →</span></div>
+          <div id="recentStudents"><div class="premium-empty">Loading students...</div></div>
+        </div>
+        <div class="premium-panel">
+          <div class="premium-panel-head"><h3>📌 Coaching Modules</h3><span>8 Active</span></div>
+          <div class="premium-empty" style="padding:12px 0">Students, Fees, Pending Fees, Fee History, Student Login, Videos, Photos और PDFs — सभी modules एक ही dashboard से manage करें।</div>
+        </div>
+      </div>
+    </section>
+
 <div class="container">
 
     <div id="status" class="status">
@@ -406,6 +520,79 @@ window.supabase.createClient(
 
 let students = [];
 
+
+async function updateDashboardOverview(){
+    const count = students.length;
+    const countEl = document.getElementById("dashboardStudentCount");
+    if(countEl) countEl.textContent = count;
+
+    const {data: feesData, error} = await supabaseClient
+        .from("Fees").select("*").order("fee_month",{ascending:false});
+    if(error){
+        console.error("Dashboard fee data:", error);
+        return;
+    }
+
+    const fees = feesData || [];
+    const paid = fees.reduce((sum,f)=>sum + Number(f.amount_paid || 0),0);
+    const due = fees.reduce((sum,f)=>sum + Math.max(0,Number(f.total_payable ?? f.monthly_fee ?? 0)-Number(f.amount_paid || 0)),0);
+
+    const collectionEl=document.getElementById("dashboardCollection");
+    const pendingEl=document.getElementById("dashboardPending");
+    const recordsEl=document.getElementById("dashboardRecords");
+    if(collectionEl) collectionEl.textContent="₹"+paid.toLocaleString("en-IN");
+    if(pendingEl) pendingEl.textContent="₹"+due.toLocaleString("en-IN");
+    if(recordsEl) recordsEl.textContent=fees.length;
+
+    const ringTotal=document.getElementById("ringTotal");
+    const ringPaid=document.getElementById("ringPaid");
+    const ringPending=document.getElementById("ringPending");
+    const ringStudents=document.getElementById("ringStudents");
+    if(ringTotal) ringTotal.textContent=count;
+    if(ringStudents) ringStudents.textContent=count;
+    const pendingStudents = new Set(
+      fees.filter(f=>Math.max(0,Number(f.total_payable ?? f.monthly_fee ?? 0)-Number(f.amount_paid || 0))>0)
+          .map(f=>String(f.student_id))
+    ).size;
+    if(ringPending) ringPending.textContent=pendingStudents;
+    if(ringPaid) ringPaid.textContent=Math.max(0,count-pendingStudents);
+
+    const recent=document.getElementById("recentStudents");
+    if(recent){
+      const list=students.slice(0,5);
+      if(!list.length){recent.innerHTML='<div class="premium-empty">No students found</div>';}
+      else{
+        recent.innerHTML=list.map(s=>`
+          <div class="premium-student-row">
+            <div><div style="width:36px;height:36px;border-radius:10px;background:#eaf1fb;display:grid;place-items:center;font-size:18px">👤</div></div>
+            <div><b>${s.Student_name || "-"}</b><small style="display:block;color:#8794a8">${s["Student class"] || "Class -"}</small></div>
+            <div class="father">${s.Father_name || "-"}</div>
+            <div class="mobile">${s.Mobile_number || "-"}</div>
+            <div><span class="premium-status paid">Student</span></div>
+          </div>`).join("");
+      }
+    }
+
+    const bars=document.getElementById("feeBars");
+    if(bars){
+      const map={};
+      fees.forEach(f=>{
+        const m=String(f.fee_month||"").slice(0,7);
+        if(m) map[m]=(map[m]||0)+Number(f.amount_paid||0);
+      });
+      const keys=Object.keys(map).sort().slice(-6);
+      if(!keys.length){bars.innerHTML='<div class="premium-empty">No fee records yet</div>';}
+      else{
+        const max=Math.max(...keys.map(k=>map[k]),1);
+        bars.innerHTML=keys.map(k=>{
+          const label=new Date(k+"-01").toLocaleDateString("en-IN",{month:"short"});
+          const h=Math.max(8,Math.round(map[k]/max*145));
+          return `<div class="fee-bar-wrap"><div class="fee-bar" title="₹${map[k].toLocaleString("en-IN")}" style="height:${h}px"></div><div class="fee-bar-label">${label}</div></div>`;
+        }).join("");
+      }
+    }
+}
+
 async function checkLogin(){
 
     const {
@@ -420,6 +607,7 @@ async function checkLogin(){
 
     await createCurrentMonthFees();
     await loadStudents();
+    showSection("dashboardHomeSection");
 }
 
 async function loadFeeHistory(){
@@ -625,6 +813,8 @@ loadPendingFees();
     
     status.textContent =
         "Total Students: " + students.length;
+
+    await updateDashboardOverview();
 }
 
 
@@ -2077,6 +2267,7 @@ async function deleteMedia(type, objectPath){
     function showSection(sectionId){
 
     const sections = [
+        "dashboardHomeSection",
         "studentsSection",
         "studentLoginSection",
         "feesSection",
@@ -2087,14 +2278,31 @@ async function deleteMedia(type, objectPath){
         "pdfsSection"
     ];
 
+    const container = document.querySelector(".container");
+    if(container){
+        container.style.display = sectionId === "studentsSection" ? "block" : "none";
+    }
+
     sections.forEach(function(id){
         const section = document.getElementById(id);
-
         if(section){
-            section.style.display =
-                id === sectionId ? "block" : "none";
+            section.style.display = id === sectionId ? "block" : "none";
         }
     });
+
+    if(window.innerWidth <= 760){
+        const side = document.getElementById("premiumSidebar");
+        if(side) side.classList.remove("open");
+    }
+}
+
+function setNav(btn){
+    document.querySelectorAll(".premium-nav button").forEach(b => b.classList.remove("active"));
+    if(btn) btn.classList.add("active");
+}
+function setNavByText(text){
+    const btn = [...document.querySelectorAll(".premium-nav button")].find(b => b.textContent.trim().toLowerCase().includes(text.toLowerCase()));
+    setNav(btn);
 }
 
 function populateStudentLoginSelect(){
