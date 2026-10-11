@@ -272,60 +272,77 @@ th{
 .media-card-actions a{color:#1565c0;align-self:center}
 .media-message{margin:10px 0;color:#475569}
 </style>
+<style>
+
+/* ===== Modern compact admin dashboard redesign ===== */
+body{background:#f5f7fb;color:#172033;font-family:Inter,Arial,sans-serif;}
+.modern-header{height:72px;padding:10px 22px;display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,.96);border-bottom:1px solid #e8edf5;position:sticky;top:0;z-index:20;box-shadow:0 4px 18px rgba(31,41,55,.05);}
+.brand-wrap{display:flex;align-items:center;gap:11px;min-width:0}.brand-logo{width:48px;height:48px;border-radius:14px;background:#eef4ff;display:grid;place-items:center;overflow:hidden}.brand-logo img{width:42px;height:42px;object-fit:contain}.brand-name{font-size:18px;font-weight:800;line-height:1.1}.brand-sub{font-size:11px;color:#7b8798;margin-top:4px}.brand-sub span{margin:0 4px;color:#b2bdcc}.header-actions{display:flex;gap:8px;align-items:center}.icon-action,.modern-logout{border:0;cursor:pointer;border-radius:10px;font-weight:700}.icon-action{width:38px;height:38px;background:#f0f4fb;color:#35527a;font-size:22px}.modern-logout{padding:10px 14px;background:#172b4d;color:#fff}.dashboard-shell{max-width:1240px;margin:18px auto 0;padding:0 18px}.welcome-card{min-height:122px;border-radius:20px;padding:24px 26px;display:flex;align-items:center;justify-content:space-between;gap:20px;color:#fff;background:linear-gradient(110deg,#173b8f,#2766d8 58%,#6a55d9);box-shadow:0 12px 30px rgba(42,82,170,.18);position:relative;overflow:hidden}.welcome-card:after{content:"";position:absolute;width:220px;height:220px;border-radius:50%;right:-70px;top:-95px;background:rgba(255,255,255,.09)}.welcome-kicker{font-size:10px;letter-spacing:1.5px;font-weight:800;opacity:.78}.welcome-title{font-size:25px;font-weight:800;margin-top:5px}.welcome-sub{font-size:12px;opacity:.82;margin-top:7px}.welcome-badge{position:relative;z-index:2;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.18);padding:9px 13px;border-radius:12px;font-size:12px;font-weight:800;white-space:nowrap}.mini-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:14px 0}.mini-stat{border:1px solid #e7ebf2;border-radius:15px;background:#fff;padding:13px;text-align:left;display:flex;align-items:center;gap:11px;cursor:pointer;box-shadow:0 5px 18px rgba(31,41,55,.045);transition:.18s}.mini-stat:hover{transform:translateY(-2px);box-shadow:0 9px 22px rgba(31,41,55,.08)}.mini-icon{width:39px;height:39px;border-radius:11px;display:grid;place-items:center;font-weight:900;font-size:17px}.mini-stat b{display:block;font-size:15px}.mini-stat small{display:block;color:#8994a6;font-size:10px;margin-top:3px}.blue .mini-icon{background:#e9f1ff;color:#3972db}.green .mini-icon{background:#e8f9f1;color:#15966a}.red .mini-icon{background:#fff0f0;color:#e34b57}.purple .mini-icon{background:#f1edff;color:#7556d9}.content-nav{background:#fff;border:1px solid #e8edf4;border-radius:16px;padding:11px 12px 12px;box-shadow:0 5px 18px rgba(31,41,55,.04)}.nav-label{font-size:10px;font-weight:800;color:#9aa5b5;letter-spacing:1px;margin:1px 4px 8px}.compact-tabs{margin:0;padding:0;background:transparent;box-shadow:none;border-radius:0;display:grid;grid-template-columns:repeat(8,1fr);gap:7px;overflow:visible}.compact-tabs button{min-width:0;padding:10px 6px;border:1px solid #edf0f5;background:#f8faff;color:#536174;border-radius:11px;font-size:12px;font-weight:750;cursor:pointer;transition:.18s}.compact-tabs button:hover,.compact-tabs button.active{background:#edf4ff;color:#2463cf;border-color:#d5e3ff}.search-row{height:46px;margin:13px 0 4px;background:#fff;border:1px solid #e4e9f1;border-radius:13px;display:flex;align-items:center;padding:0 13px;box-shadow:0 4px 14px rgba(31,41,55,.035)}.search-symbol{font-size:22px;color:#9aa6b7;margin-right:8px}.search-row .search{border:0!important;box-shadow:none!important;background:transparent!important;padding:0!important;width:100%!important;height:42px!important;outline:none!important}.container{max-width:1240px;padding:0 18px;margin:0 auto}.dashboard-section{margin:14px 0;padding:17px;border-radius:16px;box-shadow:0 6px 20px rgba(31,41,55,.055);border:1px solid #e8edf4}.dashboard-section h2{font-size:19px;color:#183b78}.table-box{border-radius:15px;box-shadow:0 6px 20px rgba(31,41,55,.055);border:1px solid #e8edf4}.dashboard-tabs{scrollbar-width:none}.dashboard-tabs::-webkit-scrollbar{display:none}
+@media(max-width:850px){.mini-stats{grid-template-columns:repeat(2,1fr)}.compact-tabs{grid-template-columns:repeat(4,1fr)}}
+@media(max-width:600px){.modern-header{height:64px;padding:8px 12px}.brand-logo{width:40px;height:40px;border-radius:11px}.brand-logo img{width:35px;height:35px}.brand-name{font-size:14px}.brand-sub{font-size:9px}.modern-logout{padding:8px 10px;font-size:11px}.icon-action{width:34px;height:34px}.dashboard-shell,.container{padding:0 10px}.welcome-card{min-height:105px;padding:18px;border-radius:16px}.welcome-title{font-size:19px}.welcome-sub{font-size:10px}.welcome-badge{font-size:10px;padding:7px 9px}.mini-stats{gap:8px;margin:10px 0}.mini-stat{padding:10px;border-radius:12px;gap:8px}.mini-icon{width:34px;height:34px}.mini-stat b{font-size:13px}.compact-tabs{grid-template-columns:repeat(4,1fr);gap:5px}.compact-tabs button{padding:9px 3px;font-size:11px}.compact-tabs button span{display:block;margin-top:2px}.content-nav{padding:9px}.search-row{margin-top:10px}.dashboard-section{padding:12px;margin:10px 0}}
+
+</style>
 </head>
 
 <body>
 
-<header>
-    <img src="logo.png" alt="Niraj Coaching Classes">
-    <h1>Niraj Coaching Classes</h1>
-    <div>Admin Dashboard</div>
+<header class="modern-header">
+    <div class="brand-wrap">
+        <div class="brand-logo"><img src="logo.png" alt="Niraj Coaching Classes"></div>
+        <div class="brand-text">
+            <div class="brand-name">Niraj Coaching Classes</div>
+            <div class="brand-sub">Admin Dashboard <span>•</span> Estd-2018</div>
+        </div>
+    </div>
+    <div class="header-actions">
+        <button class="icon-action" onclick="loadStudents()" title="Refresh">↻</button>
+        <button class="logout modern-logout" onclick="logout()">Logout</button>
+    </div>
 </header>
 
-<div class="topbar">
+<div class="dashboard-shell">
+    <div class="welcome-card">
+        <div>
+            <div class="welcome-kicker">WELCOME BACK 👋</div>
+            <div class="welcome-title">Manage your coaching, simply.</div>
+            <div class="welcome-sub">Students, fees and study content — everything in one place.</div>
+        </div>
+        <div class="welcome-badge"><span>📚</span> Admin</div>
+    </div>
 
-    <input
-        type="text"
-        id="search"
-        class="search"
-        placeholder="Search student name, father name or mobile..."
-    >
+    <div class="mini-stats">
+        <button class="mini-stat blue" onclick="showSection('studentsSection')">
+            <span class="mini-icon">👨‍🎓</span><span><b id="dashboardStudentCount">—</b><small>Total Students</small></span>
+        </button>
+        <button class="mini-stat green" onclick="showSection('feesSection')">
+            <span class="mini-icon">₹</span><span><b>Fees</b><small>Collect & Track</small></span>
+        </button>
+        <button class="mini-stat red" onclick="showSection('pendingSection')">
+            <span class="mini-icon">!</span><span><b>Pending</b><small>Check Due Fees</small></span>
+        </button>
+        <button class="mini-stat purple" onclick="showSection('historySection')">
+            <span class="mini-icon">⌁</span><span><b>History</b><small>Fee Records</small></span>
+        </button>
+    </div>
 
-    <button class="refresh" onclick="loadStudents()">
-        Refresh
-    </button>
+    <div class="content-nav">
+        <div class="nav-label">QUICK ACCESS</div>
+        <div class="dashboard-tabs compact-tabs">
+            <button class="active" onclick="showSection('studentsSection')">👨‍🎓 <span>Students</span></button>
+            <button onclick="showSection('studentLoginSection')">🔐 <span>Student Login</span></button>
+            <button onclick="showSection('feesSection')">💰 <span>Fees</span></button>
+            <button onclick="showSection('pendingSection')">⚠️ <span>Pending</span></button>
+            <button onclick="showSection('historySection')">📋 <span>History</span></button>
+            <button onclick="showSection('videosSection'); loadMedia('videos')">🎥 <span>Videos</span></button>
+            <button onclick="showSection('photosSection'); loadMedia('photos')">🖼️ <span>Photos</span></button>
+            <button onclick="showSection('pdfsSection'); loadMedia('pdfs')">📄 <span>PDFs</span></button>
+        </div>
+    </div>
 
-    <button class="logout" onclick="logout()">
-        Logout
-    </button>
-
-</div>
-<div class="dashboard-tabs">
-
-    <button onclick="showSection('studentsSection')">
-        👨‍🎓 Students
-    </button>
-
-    <button onclick="showSection('studentLoginSection')">
-        🔐 Student Login
-    </button>
-
-    <button onclick="showSection('feesSection')">
-        💰 Fees
-    </button>
-
-    <button onclick="showSection('pendingSection')">
-        ⚠️ Pending Fees
-    </button>
-
-    <button onclick="showSection('historySection')">
-        📋 Fee History
-    </button>
-
-    <button onclick="showSection('videosSection'); loadMedia('videos')">🎥 Videos</button>
-    <button onclick="showSection('photosSection'); loadMedia('photos')">🖼️ Photos</button>
-    <button onclick="showSection('pdfsSection'); loadMedia('pdfs')">📄 PDFs</button>
-
+    <div class="search-row">
+        <span class="search-symbol">⌕</span>
+        <input type="text" id="search" class="search" placeholder="Search student name, father name or mobile...">
+    </div>
 </div>
 <div class="container">
 
@@ -596,6 +613,9 @@ async function loadStudents(){
     }
 
     students = data || [];
+
+    const dashboardCount = document.getElementById("dashboardStudentCount");
+    if(dashboardCount) dashboardCount.textContent = students.length;
 
 displayStudents(students);
 populateFeeStudents();
