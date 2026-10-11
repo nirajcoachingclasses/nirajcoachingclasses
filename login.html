@@ -163,7 +163,7 @@
     <main class="page">
         <p class="brand">Admin Portal</p>
 
-        <section class="login-box" aria-labelledby="login-title">
+        <section id="loginBox" class="login-box" aria-labelledby="login-title">
             <img class="logo" src="logo.png" alt="Niraj Coaching Classes logo" onerror="this.hidden=true">
             <h1>Niraj Coaching Classes</h1>
             <h2 id="login-title">Sign In</h2>
@@ -172,7 +172,15 @@
                 <input type="email" id="email" placeholder="Admin Email" aria-label="Admin email" autocomplete="username" required>
                 <input type="password" id="password" placeholder="Password" aria-label="Password" autocomplete="current-password" required>
                 <button id="loginButton" type="submit">Login</button>
+                <button id="forgotPasswordButton" type="button" onclick="requestPasswordReset()">Forgot password?</button>
                 <div id="message" role="status" aria-live="polite"></div>
+            </form>
+
+            <form id="passwordUpdateForm" hidden onsubmit="updatePassword(); return false;">
+                <input type="password" id="newPassword" placeholder="New password" aria-label="New password" autocomplete="new-password" minlength="8" required>
+                <input type="password" id="confirmPassword" placeholder="Confirm new password" aria-label="Confirm new password" autocomplete="new-password" minlength="8" required>
+                <button id="updatePasswordButton" type="submit">Save new password</button>
+                <div id="recoveryMessage" role="status" aria-live="polite"></div>
             </form>
         </section>
     </main>
@@ -182,6 +190,85 @@
         const SUPABASE_KEY = "sb_publishable_lDYQuKhTuj2JEM3SHYrQUw_ZZkEeW50";
 
         const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        const loginForm = document.getElementById("loginForm");
+        const passwordUpdateForm = document.getElementById("passwordUpdateForm");
+        const loginTitle = document.getElementById("login-title");
+        const loginBox = document.getElementById("loginBox");
+        const message = document.getElementById("message");
+
+        function showPasswordRecovery() {
+            loginForm.hidden = true;
+            passwordUpdateForm.hidden = false;
+            loginTitle.textContent = "Set New Password";
+            message.textContent = "Enter and confirm your new password.";
+        }
+
+        supabaseClient.auth.onAuthStateChange(function (event) {
+            if (event === "PASSWORD_RECOVERY") showPasswordRecovery();
+        });
+
+        async function requestPasswordReset() {
+            const email = document.getElementById("email").value.trim();
+            if (!email) {
+                message.style.color = "#b42318";
+                message.textContent = "पहले अपना admin email भरिए।";
+                document.getElementById("email").focus();
+                return;
+            }
+
+            const button = document.getElementById("forgotPasswordButton");
+            button.disabled = true;
+            message.style.color = "#68778d";
+            message.textContent = "Recovery email भेज रहे हैं...";
+            const redirectTo = window.location.origin + window.location.pathname;
+            const { error } = await supabaseClient.auth.resetPasswordForEmail(email, { redirectTo });
+            button.disabled = false;
+
+            if (error) {
+                message.style.color = "#b42318";
+                message.textContent = "Email नहीं भेजा जा सका: " + error.message;
+                return;
+            }
+            message.style.color = "#16804a";
+            message.textContent = "अगर इस email पर account है, तो recovery link भेज दिया गया है। Inbox और Spam देखें।";
+        }
+
+        async function updatePassword() {
+            const password = document.getElementById("newPassword").value;
+            const confirmPassword = document.getElementById("confirmPassword").value;
+            const recoveryMessage = document.getElementById("recoveryMessage");
+            const button = document.getElementById("updatePasswordButton");
+            if (password !== confirmPassword) {
+                recoveryMessage.style.color = "#b42318";
+                recoveryMessage.textContent = "दोनों password एक जैसे होने चाहिए।";
+                return;
+            }
+            button.disabled = true;
+            recoveryMessage.style.color = "#68778d";
+            recoveryMessage.textContent = "Password update हो रहा है...";
+            const { error } = await supabaseClient.auth.updateUser({ password });
+            button.disabled = false;
+            if (error) {
+                recoveryMessage.style.color = "#b42318";
+                recoveryMessage.textContent = "Password update नहीं हुआ: " + error.message;
+                return;
+            }
+            const { data: userData } = await supabaseClient.auth.getUser();
+            await supabaseClient.auth.signOut();
+            document.getElementById("email").value = userData.user?.email || "";
+            document.getElementById("password").value = "";
+            passwordUpdateForm.hidden = true;
+            loginForm.hidden = false;
+            loginTitle.textContent = "Sign In";
+            message.style.color = "#16804a";
+            message.textContent = "Password बदल गया। अब नए password से login करें।";
+            document.getElementById("newPassword").value = "";
+            document.getElementById("confirmPassword").value = "";
+        }
+
+        window.requestPasswordReset = requestPasswordReset;
+        window.updatePassword = updatePassword;
 
         async function adminLogin() {
             const email = document.getElementById("email").value.trim();
