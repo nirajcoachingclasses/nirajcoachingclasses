@@ -224,6 +224,53 @@ th{
     text-align:center;
     padding:30px;
 }
+.media-upload{
+    display:flex;
+    flex-wrap:wrap;
+    align-items:center;
+    gap:10px;
+    margin:12px 0 18px;
+}
+.media-upload input[type="text"]{
+    flex:1;
+    min-width:180px;
+    padding:11px;
+    border:1px solid #cbd5e1;
+    border-radius:8px;
+}
+.media-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
+    gap:16px;
+}
+.media-card{
+    min-width:0;
+    padding:12px;
+    border:1px solid #e5e7eb;
+    border-radius:12px;
+    background:#fff;
+}
+.media-card img,.media-card video{
+    display:block;
+    width:100%;
+    max-height:240px;
+    margin-bottom:10px;
+    object-fit:contain;
+    background:#f8fafc;
+    border-radius:8px;
+}
+.media-card-title{
+    overflow-wrap:anywhere;
+    font-weight:bold;
+}
+.media-card-actions{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+    margin-top:10px;
+}
+.media-card-actions a{color:#1565c0;align-self:center}
+.media-message{margin:10px 0;color:#475569}
 </style>
 </head>
 
@@ -270,6 +317,10 @@ th{
     <button onclick="showSection('historySection')">
         📋 Fee History
     </button>
+
+    <button onclick="showSection('videosSection'); loadMedia('videos')">🎥 Videos</button>
+    <button onclick="showSection('photosSection'); loadMedia('photos')">🖼️ Photos</button>
+    <button onclick="showSection('pdfsSection'); loadMedia('pdfs')">📄 PDFs</button>
 
 </div>
 <div class="container">
@@ -1839,13 +1890,159 @@ async function createCurrentMonthFees(){
         currentMonthFeesCreating = false;
     }
 }
+const MEDIA_BUCKET = "class-media";
+const MEDIA_TYPES = ["videos", "photos", "pdfs"];
+const MAX_MEDIA_FILE_SIZE = 50 * 1024 * 1024;
+
+function setMediaMessage(type, message){
+    const target = document.getElementById(type + "Message");
+    if(target) target.textContent = message;
+}
+
+function getMediaTitle(file){
+    const metadataTitle = file.user_metadata?.title || file.metadata?.title;
+    if(metadataTitle) return metadataTitle;
+    return String(file.name || "").replace(/^\d+_/, "").replace(/\.[^.]+$/, "");
+}
+
+async function uploadMedia(type){
+    if(!MEDIA_TYPES.includes(type)) return;
+    const fileInput = document.getElementById(type + "File");
+    const titleInput = document.getElementById(type + "Title");
+    const file = fileInput?.files?.[0];
+    if(!file){setMediaMessage(type, "Choose a file to upload.");return;}
+    if(file.size > MAX_MEDIA_FILE_SIZE){
+        setMediaMessage(type, "File size must be 50 MB or less.");return;
+    }
+    const validType = type === "photos" ? file.type.startsWith("image/")
+        : type === "videos" ? file.type.startsWith("video/")
+        : file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf");
+    if(!validType){setMediaMessage(type, "Please select a file of the correct type.");return;}
+
+    const extension = file.name.includes(".") ? "." + file.name.split(".").pop() : "";
+    const title = (titleInput?.value || "").trim() || file.name.replace(/\.[^.]+$/, "");
+    const safeTitle = title.replace(/[\\/]/g, "-").slice(0, 100) || "upload";
+    const objectPath = type + "/" + Date.now() + "_" + safeTitle + extension;
+    const button = fileInput.closest(".media-upload")?.querySelector("button");
+    if(button) button.disabled = true;
+    setMediaMessage(type, "Uploading...");
+
+    let uploadError;
+    try{
+        const {error} = await supabaseClient.storage.from(MEDIA_BUCKET).upload(
+            objectPath,
+            file,
+            {upsert:false, contentType:file.type || undefined, metadata:{title}}
+        );
+        uploadError = error;
+    }catch(error){
+        uploadError = error;
+    }finally{
+        if(button) button.disabled = false;
+    }
+    if(uploadError){
+        console.error("Media upload failed:", uploadError);
+        setMediaMessage(type, "Upload failed. Check the class-media Storage bucket and its admin policies.");
+        return;
+    }
+    fileInput.value = "";
+    if(titleInput) titleInput.value = "";
+    setMediaMessage(type, "Upload complete.");
+    await loadMedia(type);
+}
+
+async function loadMedia(type){
+    if(!MEDIA_TYPES.includes(type)) return;
+    const list = document.getElementById(type + "List");
+    if(!list) return;
+    list.replaceChildren();
+    setMediaMessage(type, "Loading files...");
+
+    const {data, error} = await supabaseClient.storage.from(MEDIA_BUCKET).list(type, {
+        limit:100,
+        sortBy:{column:"name", order:"desc"}
+    });
+    if(error){
+        console.error("Media list failed:", error);
+        setMediaMessage(type, "Could not load files. Check the class-media Storage bucket and admin policies.");
+        return;
+    }
+    const files = (data || []).filter(file => file.name && !file.name.startsWith("."));
+    if(files.length === 0){setMediaMessage(type, "No files uploaded yet.");return;}
+    setMediaMessage(type, "");
+
+    for(const file of files){
+        const objectPath = type + "/" + file.name;
+        const {data:urlData, error:urlError} = await supabaseClient.storage
+            .from(MEDIA_BUCKET).createSignedUrl(objectPath, 3600);
+        if(urlError){console.error("Could not open media file:", urlError);continue;}
+
+        const card = document.createElement("article");
+        card.className = "media-card";
+        const title = document.createElement("div");
+        title.className = "media-card-title";
+        title.textContent = getMediaTitle(file);
+        if(type === "photos"){
+            const image = document.createElement("img");
+            image.src = urlData.signedUrl;
+            image.alt = title.textContent;
+            card.append(image);
+        }else if(type === "videos"){
+            const video = document.createElement("video");
+            video.src = urlData.signedUrl;
+            video.controls = true;
+            video.preload = "metadata";
+            card.append(video);
+        }else{
+            const icon = document.createElement("div");
+            icon.textContent = "📄 PDF";
+            icon.style.fontSize = "24px";
+            icon.style.padding = "22px 0";
+            card.append(icon);
+        }
+        card.append(title);
+
+        const actions = document.createElement("div");
+        actions.className = "media-card-actions";
+        const openLink = document.createElement("a");
+        openLink.href = urlData.signedUrl;
+        openLink.target = "_blank";
+        openLink.rel = "noopener";
+        openLink.textContent = type === "pdfs" ? "Open / Download" : "Open";
+        actions.append(openLink);
+
+        const deleteButton = document.createElement("button");
+        deleteButton.type = "button";
+        deleteButton.className = "delete";
+        deleteButton.textContent = "Delete";
+        deleteButton.addEventListener("click", () => deleteMedia(type, objectPath));
+        actions.append(deleteButton);
+        card.append(actions);
+        list.append(card);
+    }
+}
+
+async function deleteMedia(type, objectPath){
+    if(!confirm("Delete this file permanently?")) return;
+    const {error} = await supabaseClient.storage.from(MEDIA_BUCKET).remove([objectPath]);
+    if(error){
+        console.error("Media delete failed:", error);
+        setMediaMessage(type, "Delete failed. Check the class-media Storage bucket policies.");
+        return;
+    }
+    await loadMedia(type);
+}
+
     function showSection(sectionId){
 
     const sections = [
         "studentsSection",
         "feesSection",
         "pendingSection",
-        "historySection"
+        "historySection",
+        "videosSection",
+        "photosSection",
+        "pdfsSection"
     ];
 
     sections.forEach(function(id){
@@ -2130,5 +2327,35 @@ document.addEventListener("DOMContentLoaded", async function(){
 
 </div>
     
+<section id="videosSection" class="dashboard-section media-section" style="display:none">
+    <h2>🎥 Videos</h2>
+    <div class="media-upload">
+        <input id="videosTitle" type="text" placeholder="Video title">
+        <input id="videosFile" type="file" accept="video/*">
+        <button type="button" onclick="uploadMedia('videos')">Upload Video</button>
+    </div>
+    <p id="videosMessage" class="media-message" aria-live="polite"></p>
+    <div id="videosList" class="media-grid"></div>
+</section>
+<section id="photosSection" class="dashboard-section media-section" style="display:none">
+    <h2>🖼️ Photos</h2>
+    <div class="media-upload">
+        <input id="photosTitle" type="text" placeholder="Photo title">
+        <input id="photosFile" type="file" accept="image/*">
+        <button type="button" onclick="uploadMedia('photos')">Upload Photo</button>
+    </div>
+    <p id="photosMessage" class="media-message" aria-live="polite"></p>
+    <div id="photosList" class="media-grid"></div>
+</section>
+<section id="pdfsSection" class="dashboard-section media-section" style="display:none">
+    <h2>📄 PDFs</h2>
+    <div class="media-upload">
+        <input id="pdfsTitle" type="text" placeholder="PDF title">
+        <input id="pdfsFile" type="file" accept="application/pdf,.pdf">
+        <button type="button" onclick="uploadMedia('pdfs')">Upload PDF</button>
+    </div>
+    <p id="pdfsMessage" class="media-message" aria-live="polite"></p>
+    <div id="pdfsList" class="media-grid"></div>
+</section>
 </body>
 </html>
