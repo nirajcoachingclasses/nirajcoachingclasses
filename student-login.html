@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#eaf2fb">
+    <title>Student Login - Niraj Coaching Classes</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        * { box-sizing: border-box; }
+        body { min-height: 100vh; margin: 0; padding: 24px; display: grid; place-items: center; background: #eef4fa; color: #18314d; font-family: Arial, sans-serif; }
+        .card { width: min(100%, 440px); padding: 30px; border-radius: 18px; background: #fff; box-shadow: 0 10px 35px #17395a1c; }
+        .brand { text-align: center; margin-bottom: 25px; }
+        .brand img { width: 76px; height: 76px; object-fit: contain; }
+        h1 { margin: 8px 0 4px; font-size: 1.45rem; color: #1756a9; }
+        .sub { margin: 0; color: #61748a; }
+        label { display: block; margin: 18px 0 6px; font-weight: 700; }
+        input { width: 100%; min-height: 48px; padding: 11px 13px; border: 1px solid #cbd6e2; border-radius: 8px; font: inherit; }
+        input:focus { outline: 3px solid #1d75d433; border-color: #1d75d4; }
+        button { width: 100%; min-height: 48px; margin-top: 20px; border: 0; border-radius: 8px; color: #fff; background: #176cca; font: inherit; font-weight: 700; cursor: pointer; }
+        button:disabled { opacity: .65; cursor: wait; }
+        #message { min-height: 24px; margin: 14px 0 0; line-height: 1.45; color: #596c81; }
+        .help { margin: 16px 0 0; color: #65758a; font-size: .9rem; text-align: center; }
+        .back { display: block; margin-top: 18px; text-align: center; color: #1766b5; }
+        @media (max-width: 480px) { body { padding: 14px; } .card { padding: 24px 20px; } }
+    </style>
+</head>
+<body>
+    <main class="card">
+        <header class="brand">
+            <img src="logo.png" alt="Niraj Coaching Classes" onerror="this.hidden=true">
+            <h1>Niraj Coaching Classes</h1>
+            <p class="sub">Student Portal</p>
+        </header>
+        <form id="studentLoginForm">
+            <label for="mobile">Registered mobile number</label>
+            <input id="mobile" type="tel" inputmode="tel" autocomplete="username" placeholder="10 digit mobile number" required>
+            <label for="password">Password</label>
+            <input id="password" type="password" autocomplete="current-password" placeholder="Your password" required>
+            <button id="loginButton" type="submit">Student Login</button>
+            <p id="message" role="status" aria-live="polite"></p>
+        </form>
+        <p class="help">Login account coaching class से मिला password इस्तेमाल करें। Password भूल गए हों तो admin से संपर्क करें।</p>
+        <a class="back" href="login.html">Admin Login</a>
+    </main>
+    <script>
+        const SUPABASE_URL = "https://licsmghlaxqptmzybavp.supabase.co";
+        const SUPABASE_KEY = "sb_publishable_lDYQuKhTuj2JEM3SHYrQUw_ZZkEeW50";
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        const form = document.getElementById("studentLoginForm");
+        const message = document.getElementById("message");
+        const button = document.getElementById("loginButton");
+
+        function toIndianMobile(value) {
+            let digits = value.replace(/\D/g, "");
+            if (digits.length === 11 && digits.startsWith("0")) digits = digits.slice(1);
+            if (digits.length === 12 && digits.startsWith("91")) digits = digits.slice(2);
+            if (digits.length === 10) return digits;
+            return "";
+        }
+
+        function emailForMobile(mobile) {
+            return "student-" + mobile + "@nirajcoachingclasses.example.com";
+        }
+
+        form.addEventListener("submit", async function (event) {
+            event.preventDefault();
+            const mobile = toIndianMobile(document.getElementById("mobile").value.trim());
+            const password = document.getElementById("password").value;
+            if (!mobile) {
+                message.textContent = "Registered 10 digit Indian mobile number भरिए।";
+                return;
+            }
+            button.disabled = true;
+            message.textContent = "Login हो रहा है...";
+            const { error } = await supabaseClient.auth.signInWithPassword({
+                email: emailForMobile(mobile),
+                password
+            });
+            button.disabled = false;
+            if (error) {
+                message.textContent = "Login नहीं हुआ। Mobile और password जाँचें या admin से संपर्क करें।";
+                return;
+            }
+            window.location.href = "student-dashboard.html";
+        });
+    </script>
+</body>
+</html>

@@ -306,6 +306,10 @@ th{
         👨‍🎓 Students
     </button>
 
+    <button onclick="showSection('studentLoginSection')">
+        🔐 Student Login
+    </button>
+
     <button onclick="showSection('feesSection')">
         💰 Fees
     </button>
@@ -352,6 +356,22 @@ th{
     </div>
 
 </div>
+
+<section id="studentLoginSection" class="dashboard-section" style="display:none">
+    <h2>🔐 Student Login banana</h2>
+    <p>Student chuniye aur uske liye password set kijiye. SMS ya Twilio ki zaroorat nahi hai.</p>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;max-width:760px">
+        <select id="portalStudentSelect" style="min-height:46px;padding:10px;border:1px solid #cbd5e1;border-radius:8px">
+            <option value="">Student chuniye</option>
+        </select>
+        <input id="portalStudentPassword" type="password" minlength="8" autocomplete="new-password" placeholder="Student ka password (8+ characters)" style="min-height:46px;padding:10px;border:1px solid #cbd5e1;border-radius:8px">
+        <button id="createStudentLoginButton" type="button" onclick="createStudentLogin()" style="min-height:46px;padding:10px 16px;border:0;border-radius:8px;background:#176cca;color:white;font-weight:bold;cursor:pointer">
+            Create / Update Login
+        </button>
+    </div>
+    <p id="studentLoginMessage" role="status" aria-live="polite" style="min-height:24px;color:#52657a"></p>
+    <p style="color:#64748b">Password student ko alag se batayein. Login page par wahi registered mobile number aur password dalega.</p>
+</section>
 
 <script>
 
@@ -579,6 +599,7 @@ async function loadStudents(){
 
 displayStudents(students);
 populateFeeStudents();
+populateStudentLoginSelect();
 loadFeeHistory();
 loadPendingFees();    
     
@@ -2037,6 +2058,7 @@ async function deleteMedia(type, objectPath){
 
     const sections = [
         "studentsSection",
+        "studentLoginSection",
         "feesSection",
         "pendingSection",
         "historySection",
@@ -2054,6 +2076,58 @@ async function deleteMedia(type, objectPath){
         }
     });
 }
+
+function populateStudentLoginSelect(){
+    const select = document.getElementById("portalStudentSelect");
+    if(!select) return;
+    select.innerHTML = '<option value="">Student chuniye</option>';
+    students.forEach(function(student){
+        const option = document.createElement("option");
+        option.value = student.id;
+        option.textContent = (student.Student_name || "Student") +
+            " - " + (student.Mobile_number || "mobile number missing");
+        select.appendChild(option);
+    });
+}
+
+async function createStudentLogin(){
+    const studentId = document.getElementById("portalStudentSelect").value;
+    const passwordInput = document.getElementById("portalStudentPassword");
+    const button = document.getElementById("createStudentLoginButton");
+    const message = document.getElementById("studentLoginMessage");
+    const password = passwordInput.value;
+
+    if(!studentId){
+        message.textContent = "Pehle student chuniye.";
+        return;
+    }
+    if(password.length < 8){
+        message.textContent = "Password kam se kam 8 characters ka rakhiye.";
+        return;
+    }
+
+    button.disabled = true;
+    message.textContent = "Student login ban raha hai...";
+    const { data, error } = await supabaseClient.functions.invoke(
+        "create-student-login",
+        { body: { studentId, password } }
+    );
+    button.disabled = false;
+
+    if(error || !data || !data.success){
+        console.error("Student login setup failed:", error || data);
+        message.textContent = (data && data.error) ||
+            "Login nahi bana. Internet ya secure setup check karke dobara koshish karein.";
+        return;
+    }
+
+    passwordInput.value = "";
+    message.textContent = data.updated
+        ? "Student login update ho gaya. Student apne registered mobile aur naye password se login karega."
+        : "Student login ban gaya. Student apne registered mobile aur diye gaye password se login karega.";
+}
+window.createStudentLogin = createStudentLogin;
+
 document.addEventListener("DOMContentLoaded", async function(){
     showSection("studentsSection");
     observedDashboardMonth = getCurrentFeeMonth();

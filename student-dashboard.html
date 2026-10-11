@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#1768bd">
+    <title>Student Dashboard - Niraj Coaching Classes</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        * { box-sizing: border-box; }
+        body { margin: 0; background: #f1f5f9; color: #182b42; font-family: Arial, sans-serif; }
+        header { padding: 18px 20px; color: #fff; text-align: center; background: linear-gradient(120deg,#1551a4,#237bd1); }
+        header img { width: 54px; height: 48px; object-fit: contain; vertical-align: middle; }
+        header h1 { display: inline-block; margin: 0 0 0 8px; font-size: clamp(1.2rem,4vw,1.7rem); vertical-align: middle; }
+        header p { margin: 6px 0 0; }
+        .toolbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 16px; background: #fff; }
+        #studentName { font-weight: 700; }
+        button { border: 0; border-radius: 8px; padding: 11px 16px; color: #fff; background: #176cca; font: inherit; cursor: pointer; }
+        .logout { background: #d93036; }
+        .tabs { display: flex; gap: 10px; overflow-x: auto; margin: 14px 10px; padding: 8px; border-radius: 12px; background: #fff; }
+        .tabs button { flex: 0 0 auto; color: #164e94; background: #e3f1fc; font-weight: 700; }
+        .tabs button[aria-selected="true"] { color: #fff; background: #1673cc; }
+        main { max-width: 1100px; margin: 20px auto; padding: 0 14px 30px; }
+        .panel { padding: 20px; border-radius: 14px; background: #fff; box-shadow: 0 4px 12px #1f29371a; }
+        .panel + .panel { margin-top: 18px; }
+        .panel h2 { margin: 0 0 16px; padding-bottom: 10px; border-bottom: 2px solid #d9ebfa; color: #1653a6; }
+        .summary { display: grid; grid-template-columns: repeat(auto-fit,minmax(155px,1fr)); gap: 12px; margin-bottom: 18px; }
+        .stat { padding: 14px; border-radius: 10px; background: #edf5fc; }
+        .stat span { display: block; color: #64748b; font-size: .9rem; }
+        .stat strong { display: block; margin-top: 5px; font-size: 1.3rem; }
+        .table-wrap { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; min-width: 560px; }
+        th,td { padding: 11px 9px; border-bottom: 1px solid #e3e9f0; text-align: left; }
+        th { background: #eaf3fc; }
+        .media-grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(220px,1fr)); gap: 14px; }
+        .media-card { overflow: hidden; padding: 13px; border: 1px solid #e0e6ee; border-radius: 11px; }
+        .media-card h3 { margin: 0 0 10px; font-size: 1rem; }
+        .media-card video,.media-card img { display: block; width: 100%; max-height: 220px; margin-bottom: 10px; object-fit: contain; background: #f4f7fa; }
+        .media-card a { color: #176cca; }
+        .message { min-height: 22px; color: #65758a; }
+        [hidden] { display: none !important; }
+        @media (max-width: 540px) { header { padding: 14px 10px; } .toolbar { align-items: flex-start; } .panel { padding: 15px; } }
+    </style>
+</head>
+<body>
+    <header>
+        <img src="logo.png" alt="Niraj Coaching Classes" onerror="this.hidden=true">
+        <h1>Niraj Coaching Classes</h1>
+        <p>Student Dashboard</p>
+    </header>
+    <div class="toolbar">
+        <span id="studentName">आपका dashboard खुल रहा है...</span>
+        <button class="logout" id="logoutButton" type="button">Logout</button>
+    </div>
+    <nav class="tabs" aria-label="Student dashboard sections">
+        <button type="button" data-section="fees" aria-selected="true">Fees / Fee History</button>
+        <button type="button" data-section="videos" aria-selected="false">Videos</button>
+        <button type="button" data-section="photos" aria-selected="false">Photos</button>
+        <button type="button" data-section="pdfs" aria-selected="false">PDFs</button>
+    </nav>
+    <main>
+        <section class="panel portal-section" id="feesSection">
+            <h2>My Fees / Fee History</h2>
+            <div class="summary">
+                <div class="stat"><span>Total paid</span><strong id="totalPaid">₹0</strong></div>
+                <div class="stat"><span>Pending fees</span><strong id="totalDue">₹0</strong></div>
+            </div>
+            <p class="message" id="feesMessage" role="status" aria-live="polite">Fee history load हो रही है...</p>
+            <div class="table-wrap">
+                <table>
+                    <thead><tr><th>Month</th><th>Monthly fee</th><th>Paid</th><th>Pending</th></tr></thead>
+                    <tbody id="feesBody"></tbody>
+                </table>
+            </div>
+        </section>
+        <section class="panel portal-section" id="videosSection" hidden>
+            <h2>Videos</h2><p class="message" id="videosMessage" role="status" aria-live="polite"></p><div class="media-grid" id="videosList"></div>
+        </section>
+        <section class="panel portal-section" id="photosSection" hidden>
+            <h2>Photos</h2><p class="message" id="photosMessage" role="status" aria-live="polite"></p><div class="media-grid" id="photosList"></div>
+        </section>
+        <section class="panel portal-section" id="pdfsSection" hidden>
+            <h2>PDFs / Notes</h2><p class="message" id="pdfsMessage" role="status" aria-live="polite"></p><div class="media-grid" id="pdfsList"></div>
+        </section>
+    </main>
+    <script>
+        const SUPABASE_URL = "https://licsmghlaxqptmzybavp.supabase.co";
+        const SUPABASE_KEY = "sb_publishable_lDYQuKhTuj2JEM3SHYrQUw_ZZkEeW50";
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        const mediaFolders = ["videos", "photos", "pdfs"];
+        let activeStudentId = null;
+
+        document.getElementById("logoutButton").addEventListener("click", async function () {
+            await supabaseClient.auth.signOut();
+            window.location.href = "student-login.html";
+        });
+        document.querySelectorAll(".tabs button").forEach(function (button) {
+            button.addEventListener("click", function () {
+                const target = button.dataset.section;
+                document.querySelectorAll(".tabs button").forEach(function (item) {
+                    item.setAttribute("aria-selected", String(item === button));
+                });
+                document.querySelectorAll(".portal-section").forEach(function (section) {
+                    section.hidden = section.id !== target + "Section";
+                });
+                if (mediaFolders.includes(target)) loadMedia(target);
+            });
+        });
+
+        function setText(id, value) {
+            document.getElementById(id).textContent = value == null ? "" : String(value);
+        }
+        function rupees(value) {
+            return "₹" + Number(value || 0).toLocaleString("en-IN");
+        }
+        function addCell(row, value) {
+            const cell = document.createElement("td");
+            cell.textContent = value == null ? "—" : String(value);
+            row.appendChild(cell);
+        }
+
+        async function loadPortal() {
+            const { data: sessionData, error: sessionError } = await supabaseClient.auth.getSession();
+            const session = sessionData && sessionData.session;
+            if (sessionError || !session) {
+                window.location.href = "student-login.html";
+                return;
+            }
+            const { data: account, error: accountError } = await supabaseClient
+                .from("student_portal_accounts")
+                .select("student_id")
+                .eq("user_id", session.user.id)
+                .maybeSingle();
+            if (accountError || !account) {
+                setText("studentName", "Student account अभी link नहीं हुआ है। Coaching class से संपर्क करें।");
+                document.getElementById("feesMessage").textContent = "इस login के साथ student record सुरक्षित रूप से link नहीं है।";
+                return;
+            }
+            activeStudentId = account.student_id;
+            await loadStudentProfile();
+            await loadFees();
+        }
+
+        async function loadStudentProfile() {
+            const { data, error } = await supabaseClient.from("Student").select("*").eq("id", activeStudentId).maybeSingle();
+            if (error || !data) {
+                setText("studentName", "Student details load नहीं हो सके।");
+                return;
+            }
+            setText("studentName", (data.Student_name || "Student") + " • Class " + (data["Student class"] || "—"));
+        }
+
+        async function loadFees() {
+            const { data, error } = await supabaseClient
+                .from("Fees")
+                .select("fee_month,monthly_fee,amount_paid,due_fee")
+                .eq("student_id", activeStudentId)
+                .order("fee_month", { ascending: false });
+            const body = document.getElementById("feesBody");
+            body.replaceChildren();
+            if (error) {
+                setText("feesMessage", "Fee history load नहीं हुई। Account policy setup जाँचें।");
+                return;
+            }
+            const rows = data || [];
+            let paid = 0;
+            let due = 0;
+            rows.forEach(function (fee) {
+                paid += Number(fee.amount_paid || 0);
+                due += Number(fee.due_fee || 0);
+                const row = document.createElement("tr");
+                addCell(row, fee.fee_month);
+                addCell(row, rupees(fee.monthly_fee));
+                addCell(row, rupees(fee.amount_paid));
+                addCell(row, rupees(fee.due_fee));
+                body.appendChild(row);
+            });
+            setText("totalPaid", rupees(paid));
+            setText("totalDue", rupees(due));
+            setText("feesMessage", rows.length ? "" : "अभी कोई fee record नहीं है।");
+        }
+
+        async function loadMedia(type) {
+            if (!mediaFolders.includes(type)) return;
+            const list = document.getElementById(type + "List");
+            const message = document.getElementById(type + "Message");
+            list.replaceChildren();
+            message.textContent = "Loading...";
+            const { data, error } = await supabaseClient.storage.from("class-media").list(type, {
+                limit: 100,
+                sortBy: { column: "name", order: "desc" }
+            });
+            if (error) {
+                message.textContent = "Files load नहीं हुए। Storage read policy जाँचें।";
+                return;
+            }
+            const files = (data || []).filter(function (file) { return file.name && !file.name.startsWith("."); });
+            if (!files.length) {
+                message.textContent = "अभी कोई file उपलब्ध नहीं है।";
+                return;
+            }
+            message.textContent = "";
+            for (const file of files) {
+                const path = type + "/" + file.name;
+                const { data: signed, error: signedError } = await supabaseClient.storage
+                    .from("class-media").createSignedUrl(path, 3600);
+                if (signedError || !signed) continue;
+                const card = document.createElement("article");
+                card.className = "media-card";
+                const title = document.createElement("h3");
+                title.textContent = (file.user_metadata && file.user_metadata.title) ||
+                    (file.metadata && file.metadata.title) ||
+                    file.name.replace(/^\d+_/, "").replace(/\.[^.]+$/, "");
+                card.appendChild(title);
+                if (type === "photos") {
+                    const image = document.createElement("img");
+                    image.src = signed.signedUrl;
+                    image.alt = title.textContent;
+                    card.appendChild(image);
+                } else if (type === "videos") {
+                    const video = document.createElement("video");
+                    video.src = signed.signedUrl;
+                    video.controls = true;
+                    video.preload = "metadata";
+                    card.appendChild(video);
+                }
+                const link = document.createElement("a");
+                link.href = signed.signedUrl;
+                link.target = "_blank";
+                link.rel = "noopener";
+                link.textContent = type === "pdfs" ? "Open / Download" : "Open file";
+                card.appendChild(link);
+                list.appendChild(card);
+            }
+            if (!list.children.length) message.textContent = "अभी कोई file उपलब्ध नहीं है।";
+        }
+
+        loadPortal();
+    </script>
+</body>
+</html>
