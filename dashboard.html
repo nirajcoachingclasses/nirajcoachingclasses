@@ -350,7 +350,7 @@ body.dashboard-mode{padding-left:206px}
   <div class="content-nav">
     <div class="nav-label">QUICK ACCESS</div>
     <div class="compact-tabs">
-      <button class="active" data-section="studentsSection" onclick="showSection('studentsSection')">👥 <span>Students</span></button>
+      <button data-section="studentsSection" onclick="showSection('studentsSection')">👥 <span>Students</span></button>
       <button data-section="feesSection" onclick="showSection('feesSection')">₹ <span>Fees</span></button>
       <button data-section="pendingSection" onclick="showSection('pendingSection')">⚠ <span>Pending</span></button>
       <button data-section="historySection" onclick="showSection('historySection')">▣ <span>History</span></button>
@@ -2094,9 +2094,18 @@ function showSection(sectionId){
     ];
     sections.forEach(function(id){
         const section = document.getElementById(id);
-        if(section) section.style.display = id === sectionId ? (id === "dashboardHome" ? "block" : "block") : "none";
+        if(section) section.style.display = id === sectionId ? "block" : "none";
     });
-    document.querySelectorAll('[data-section]').forEach(btn=>btn.classList.toggle('active', btn.getAttribute('data-section')===sectionId));
+
+    // The student table lives inside .container. Keep it completely hidden
+    // on the Dashboard so the home design stays clean; show it only when
+    // Students is opened.
+    const studentContainer = document.querySelector('.container');
+    if(studentContainer) studentContainer.style.display = sectionId === 'studentsSection' ? 'block' : 'none';
+
+    document.querySelectorAll('[data-section]').forEach(btn=>
+        btn.classList.toggle('active', btn.getAttribute('data-section')===sectionId)
+    );
     if(sectionId === "dashboardHome") updateDashboardHome();
     window.scrollTo({top:0,behavior:"smooth"});
     if(window.innerWidth <= 1000) document.getElementById("sidebar")?.classList.remove("open");
@@ -2202,7 +2211,9 @@ async function createStudentLogin(){
 window.createStudentLogin = createStudentLogin;
 
 document.addEventListener("DOMContentLoaded", async function(){
-    showSection("studentsSection");
+    // Open the clean Dashboard by default. Student list appears only after
+    // clicking Students.
+    showSection("dashboardHome");
     observedDashboardMonth = getCurrentFeeMonth();
 
     // If the dashboard stays open across a month boundary, create that month's
