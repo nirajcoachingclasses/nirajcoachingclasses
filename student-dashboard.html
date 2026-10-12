@@ -89,18 +89,51 @@ main{max-width:1180px;margin:0 auto;padding:28px 22px 30px}.welcome{min-height:2
             const { data, error } = await supabaseClient.from("Student").select("*").eq("id", activeStudentId).maybeSingle();
             if (error || !data) {
                 setText("studentName", "Student details load नहीं हो सके।");
+                setText("classMessage", error ? "Profile access error: " + error.message : "Student profile record नहीं मिला।");
                 return;
             }
-            const name = data.Student_name || "Student";
-            const studentClass = data["Student class"] || "—";
+            // The admin admission form stores these exact columns. Fall back to common legacy spellings too.
+            const getValue = function (keys) {
+                for (const key of keys) if (data[key] != null && String(data[key]).trim() !== "") return data[key];
+                return "";
+            };
+            const name = String(getValue(["Student_name", "student_name", "full_name", "name"]) || "Student");
+            const studentClass = String(getValue(["Student class", "Student_class", "student_class", "class_name", "Class"]) || "—");
             setText("studentName", name + " • Class " + studentClass);
-            setText("welcomeName", name); setText("welcomeClass", "Class " + studentClass);
-            setText("profileLabel", name); setText("className", "Class " + studentClass);
-            const photo = data.photo_url || data.photo || data.image_url || data.profile_photo;
-            if (photo && typeof photo === "string") {
-                const studentPhoto = document.getElementById("studentPhoto"); studentPhoto.src = photo; studentPhoto.hidden = false; document.getElementById("studentPhotoFallback").hidden = true;
-                const avatar = document.getElementById("profileAvatar"); avatar.src = photo; avatar.hidden = false; document.getElementById("profileInitial").hidden = true;
-            } else { document.getElementById("profileInitial").textContent = name.trim().charAt(0).toUpperCase() || "S"; }
+            setText("welcomeName", name);
+            setText("welcomeClass", "Class " + studentClass);
+            setText("profileLabel", name);
+            setText("className", "Class " + studentClass);
+            setText("classMessage", "Your class profile is ready.");
+            const photoPath = getValue(["Photo_url", "photo_url", "photo", "image_url", "profile_photo"]);
+            if (photoPath) {
+                let photoUrl = String(photoPath);
+                if (!/^https?:\/\//i.test(photoUrl)) {
+                    const { data: signed, error: photoError } = await supabaseClient.storage
+                        .from("student_photos").createSignedUrl(photoUrl, 3600);
+                    if (photoError || !signed) {
+                        setText("classMessage", "Profile loaded; student photo could not be opened.");
+                        return;
+                    }
+                    photoUrl = signed.signedUrl;
+                }
+                const studentPhoto = document.getElementById("studentPhoto");
+                studentPhoto.onload = function () {
+                    studentPhoto.hidden = false;
+                    document.getElementById("studentPhotoFallback").hidden = true;
+                };
+                studentPhoto.onerror = function () {
+                    studentPhoto.hidden = true;
+                    document.getElementById("studentPhotoFallback").hidden = false;
+                };
+                studentPhoto.src = photoUrl;
+                const avatar = document.getElementById("profileAvatar");
+                avatar.src = photoUrl;
+                avatar.onload = function () { avatar.hidden = false; document.getElementById("profileInitial").hidden = true; };
+                avatar.onerror = function () { avatar.hidden = true; document.getElementById("profileInitial").hidden = false; };
+            } else {
+                document.getElementById("profileInitial").textContent = name.trim().charAt(0).toUpperCase() || "S";
+            }
         }
 
         async function loadFees() {
