@@ -83,12 +83,21 @@ main{max-width:1180px;margin:0 auto;padding:28px 22px 30px}.welcome{min-height:2
                 .select("student_id")
                 .eq("user_id", session.user.id)
                 .maybeSingle();
-            if (accountError || !account) {
-                setText("studentName", "Student account अभी link नहीं हुआ है। Coaching class से संपर्क करें।");
-                document.getElementById("feesMessage").textContent = "इस login के साथ student record सुरक्षित रूप से link नहीं है।";
+            const metadata = session.user.user_metadata || {};
+            const mappedStudentId = account && account.student_id;
+            // Student login creation records this ID in auth metadata as a safe fallback
+            // when the mapping-table read is blocked by database grants or row policies.
+            activeStudentId = mappedStudentId || metadata.student_id || null;
+            if (!activeStudentId) {
+                const reason = accountError ? accountError.message : "No student is linked to this login.";
+                setText("welcomeName", metadata.student_name || "Student");
+                setText("className", "Student record unavailable");
+                setText("welcomeClass", "Class information unavailable");
+                setText("classMessage", "Student link could not be loaded: " + reason);
+                setText("feesMessage", "Student link could not be loaded. Please contact the class admin.");
                 return;
             }
-            activeStudentId = account.student_id;
+            if (accountError) console.warn("Student account mapping read failed; using auth metadata student_id.", accountError);
             await loadStudentProfile();
             await loadFees();
         }
