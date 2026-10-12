@@ -351,7 +351,15 @@ body.dashboard-mode{padding-left:150px;background:#f3f7ff;color:#12294c}
   body.dashboard-mode:not(.sidebar-hidden) #sidebar{transform:translateX(0)!important}
 }
 </style>
-</head>
+<style>
+.section-controls{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:10px 0 14px;padding:10px;background:#f8fbff;border:1px solid #dce8f5;border-radius:12px}
+.section-back{min-height:40px;padding:8px 14px;border:0;border-radius:10px;background:#12345a;color:#fff;font-weight:800;cursor:pointer;white-space:nowrap}
+.section-back:hover{background:#1769c2}
+.section-search-wrap{display:flex;align-items:center;gap:8px;flex:1 1 260px;max-width:540px;min-width:190px;height:42px;padding:0 11px;border:1px solid #d6e2f0;border-radius:10px;background:#fff;color:#75859a}
+.section-search-icon{font-size:22px;line-height:1}
+.section-search{width:100%;min-width:0;height:100%;border:0;outline:0;background:transparent;color:#20344f;font:inherit;font-size:13px}
+@media(max-width:600px){.section-controls{align-items:stretch}.section-back{width:100%}.section-search-wrap{flex-basis:100%;max-width:none}}
+</style></head>
 
 <body class="dashboard-mode">
 <aside class="sidebar" id="sidebar">
@@ -2197,7 +2205,55 @@ async function deleteMedia(type, objectPath){
     await loadMedia(type);
 }
 
+const SECTION_SEARCH_CONFIGS = [
+  {sectionId:"studentsSection",mountSelector:".container",beforeSelector:"#studentsSection",itemSelector:"#studentList tr",placeholder:"Search students by name, father name, mobile or class..."},
+  {sectionId:"studentLoginSection",mountSelector:"#studentLoginSection",itemSelector:"#portalStudentSelect option",kind:"options",placeholder:"Search student for login..."},
+  {sectionId:"feesSection",mountSelector:"#feesSection",itemSelector:"#studentFeeHistoryBody tr",placeholder:"Search fee records..."},
+  {sectionId:"pendingSection",mountSelector:"#pendingSection",itemSelector:"#pendingFeesBody tr",placeholder:"Search pending fees..."},
+  {sectionId:"historySection",mountSelector:"#historySection",itemSelector:"#feeHistoryBody tr",placeholder:"Search fee history..."},
+  {sectionId:"videosSection",mountSelector:"#videosSection",itemSelector:"#videosList > .media-card",placeholder:"Search videos..."},
+  {sectionId:"photosSection",mountSelector:"#photosSection",itemSelector:"#photosList > .media-card",placeholder:"Search photos..."},
+  {sectionId:"pdfsSection",mountSelector:"#pdfsSection",itemSelector:"#pdfsList > .media-card",placeholder:"Search PDFs..."}
+];
+function filterSectionItems(config, query){
+  const mount=document.querySelector(config.mountSelector);
+  if(!mount)return;
+  const needle=String(query||"").trim().toLocaleLowerCase();
+  mount.querySelectorAll(config.itemSelector).forEach(item=>{
+    if(config.kind==="options"){
+      if(!item.value){item.hidden=false;return;}
+      item.hidden=!!needle&&!item.textContent.toLocaleLowerCase().includes(needle);
+      return;
+    }
+    item.style.display=!needle||item.textContent.toLocaleLowerCase().includes(needle)?"":"none";
+  });
+}
+function ensureSectionControls(){
+  SECTION_SEARCH_CONFIGS.forEach(config=>{
+    const mount=document.querySelector(config.mountSelector);
+    if(!mount)return;
+    let toolbar=mount.querySelector(`[data-section-tools="${config.sectionId}"]`);
+    if(toolbar)return;
+    toolbar=document.createElement("div");
+    toolbar.className="section-controls";
+    toolbar.dataset.sectionTools=config.sectionId;
+    const back=document.createElement("button");
+    back.type="button";back.className="section-back";back.textContent="← Back to Dashboard";
+    back.addEventListener("click",()=>showSection("dashboardHome"));
+    const searchWrap=document.createElement("label");searchWrap.className="section-search-wrap";
+    const icon=document.createElement("span");icon.className="section-search-icon";icon.setAttribute("aria-hidden","true");icon.textContent="⌕";
+    const input=document.createElement("input");input.type="search";input.className="section-search";input.placeholder=config.placeholder;input.setAttribute("aria-label",config.placeholder);input.autocomplete="off";
+    input.addEventListener("input",()=>filterSectionItems(config,input.value));
+    input.addEventListener("keydown",event=>{if(event.key==="Escape"){input.value="";filterSectionItems(config,"");}});
+    searchWrap.append(icon,input);toolbar.append(back,searchWrap);
+    const anchor=config.beforeSelector?mount.querySelector(config.beforeSelector):mount.querySelector("h2");
+    if(anchor)anchor.before(toolbar);else mount.prepend(toolbar);
+    const observer=new MutationObserver(()=>filterSectionItems(config,input.value));
+    observer.observe(mount,{childList:true,subtree:true});
+  });
+}
 function showSection(sectionId){
+    ensureSectionControls();
     const sections = [
         "dashboardHome","studentsSection","studentLoginSection","feesSection","pendingSection","historySection","videosSection","photosSection","pdfsSection"
     ];
