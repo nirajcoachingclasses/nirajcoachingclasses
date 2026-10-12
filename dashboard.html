@@ -457,12 +457,12 @@ body.dashboard-mode{padding-left:150px;background:#f3f7ff;color:#12294c}
 
 <div class="container">
   <div id="status" class="status">Loading students...</div>
-  <div id="studentsSection" class="table-box">
+  <div id="studentsSection" class="table-box"><div class="section-controls" data-section-tools="studentsSection"><button type="button" class="section-back" onclick="showSection('dashboardHome')">← Back to Dashboard</button></div>
     <table><thead><tr><th>Photo</th><th>Student Name</th><th>Father Name</th><th>Mobile</th><th>Class</th><th>Address</th><th>Action</th></tr></thead><tbody id="studentList"></tbody></table>
   </div>
 </div>
 
-<section id="studentLoginSection" class="dashboard-section" style="display:none">
+<section id="studentLoginSection" class="dashboard-section" style="display:none"><div class="section-controls" data-section-tools="studentLoginSection"><button type="button" class="section-back" onclick="showSection('dashboardHome')">← Back to Dashboard</button></div>
     <h2>🔐 Student Login banana</h2>
     <p>Student chuniye aur uske liye password set kijiye. SMS ya Twilio ki zaroorat nahi hai.</p>
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;max-width:760px">
@@ -2234,21 +2234,26 @@ function ensureSectionControls(){
     const mount=document.querySelector(config.mountSelector);
     if(!mount)return;
     let toolbar=mount.querySelector(`[data-section-tools="${config.sectionId}"]`);
-    if(toolbar)return;
-    toolbar=document.createElement("div");
-    toolbar.className="section-controls";
-    toolbar.dataset.sectionTools=config.sectionId;
-    const back=document.createElement("button");
-    back.type="button";back.className="section-back";back.textContent="← Back to Dashboard";
-    back.addEventListener("click",()=>showSection("dashboardHome"));
-    const searchWrap=document.createElement("label");searchWrap.className="section-search-wrap";
-    const icon=document.createElement("span");icon.className="section-search-icon";icon.setAttribute("aria-hidden","true");icon.textContent="⌕";
-    const input=document.createElement("input");input.type="search";input.className="section-search";input.placeholder=config.placeholder;input.setAttribute("aria-label",config.placeholder);input.autocomplete="off";
-    input.addEventListener("input",()=>filterSectionItems(config,input.value));
-    input.addEventListener("keydown",event=>{if(event.key==="Escape"){input.value="";filterSectionItems(config,"");}});
-    searchWrap.appendChild(icon);searchWrap.appendChild(input);toolbar.appendChild(back);toolbar.appendChild(searchWrap);
-    const anchor=config.beforeSelector?mount.querySelector(config.beforeSelector):mount.querySelector("h2");
-    if(anchor)mount.insertBefore(toolbar,anchor);else mount.insertBefore(toolbar,mount.firstChild);
+    if(!toolbar){
+      toolbar=document.createElement("div");
+      toolbar.className="section-controls";
+      toolbar.dataset.sectionTools=config.sectionId;
+      const back=document.createElement("button");
+      back.type="button";back.className="section-back";back.textContent="← Back to Dashboard";
+      back.addEventListener("click",()=>showSection("dashboardHome"));
+      toolbar.appendChild(back);
+      const anchor=config.beforeSelector?mount.querySelector(config.beforeSelector):mount.querySelector("h2");
+      if(anchor)mount.insertBefore(toolbar,anchor);else mount.insertBefore(toolbar,mount.firstChild);
+    }
+    if(!toolbar.querySelector(".section-search-wrap")){
+      const searchWrap=document.createElement("label");searchWrap.className="section-search-wrap";
+      const icon=document.createElement("span");icon.className="section-search-icon";icon.setAttribute("aria-hidden","true");icon.textContent="⌕";
+      const input=document.createElement("input");input.type="search";input.className="section-search";input.placeholder=config.placeholder;input.setAttribute("aria-label",config.placeholder);input.autocomplete="off";
+      input.addEventListener("input",()=>filterSectionItems(config,input.value));
+      input.addEventListener("keydown",event=>{if(event.key==="Escape"){input.value="";filterSectionItems(config,"");}});
+      searchWrap.appendChild(icon);searchWrap.appendChild(input);toolbar.appendChild(searchWrap);
+    }
+    const input=toolbar.querySelector(".section-search");
     const observer=typeof MutationObserver!=="undefined"?new MutationObserver(()=>filterSectionItems(config,input.value)):null;
     if(observer)observer.observe(mount,{childList:true,subtree:true});
   });
@@ -2474,7 +2479,7 @@ document.addEventListener("DOMContentLoaded", async function(){
 </div> 
 </div>
 </div> 
-<div id="feesSection" class="dashboard-section">
+<div id="feesSection" class="dashboard-section"><div class="section-controls" data-section-tools="feesSection"><button type="button" class="section-back" onclick="showSection('dashboardHome')">← Back to Dashboard</button></div>
     <h2>💰 Fees Management</h2>
     <div style="
     margin-top:20px;
@@ -2596,7 +2601,7 @@ document.addEventListener("DOMContentLoaded", async function(){
 
     </div>
 </div>
-  <div id="pendingSection" class="dashboard-section pending-section">
+  <div id="pendingSection" class="dashboard-section pending-section"><div class="section-controls" data-section-tools="pendingSection"><button type="button" class="section-back" onclick="showSection('dashboardHome')">← Back to Dashboard</button></div>
 
     <h2>⚠️ Pending Fees</h2>
 
@@ -2629,7 +2634,7 @@ document.addEventListener("DOMContentLoaded", async function(){
     </div>
 
 </div> 
-<div id="historySection" class="dashboard-section history-section">
+<div id="historySection" class="dashboard-section history-section"><div class="section-controls" data-section-tools="historySection"><button type="button" class="section-back" onclick="showSection('dashboardHome')">← Back to Dashboard</button></div>
 
     <h2>📋 Fee History</h2>
 
@@ -2658,7 +2663,7 @@ document.addEventListener("DOMContentLoaded", async function(){
 
 </div>
     
-<section id="videosSection" class="dashboard-section media-section" style="display:none">
+<section id="videosSection" class="dashboard-section media-section" style="display:none"><div class="section-controls" data-section-tools="videosSection"><button type="button" class="section-back" onclick="showSection('dashboardHome')">← Back to Dashboard</button></div>
     <h2>🎥 Videos</h2>
     <div class="media-upload">
         <input id="videosTitle" type="text" placeholder="Video title">
@@ -2668,7 +2673,7 @@ document.addEventListener("DOMContentLoaded", async function(){
     <p id="videosMessage" class="media-message" aria-live="polite"></p>
     <div id="videosList" class="media-grid"></div>
 </section>
-<section id="photosSection" class="dashboard-section media-section" style="display:none">
+<section id="photosSection" class="dashboard-section media-section" style="display:none"><div class="section-controls" data-section-tools="photosSection"><button type="button" class="section-back" onclick="showSection('dashboardHome')">← Back to Dashboard</button></div>
     <h2>🖼️ Photos</h2>
     <div class="media-upload">
         <input id="photosTitle" type="text" placeholder="Photo title">
@@ -2678,7 +2683,7 @@ document.addEventListener("DOMContentLoaded", async function(){
     <p id="photosMessage" class="media-message" aria-live="polite"></p>
     <div id="photosList" class="media-grid"></div>
 </section>
-<section id="pdfsSection" class="dashboard-section media-section" style="display:none">
+<section id="pdfsSection" class="dashboard-section media-section" style="display:none"><div class="section-controls" data-section-tools="pdfsSection"><button type="button" class="section-back" onclick="showSection('dashboardHome')">← Back to Dashboard</button></div>
     <h2>📄 PDFs</h2>
     <div class="media-upload">
         <input id="pdfsTitle" type="text" placeholder="PDF title">
