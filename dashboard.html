@@ -2671,5 +2671,28 @@ document.addEventListener("DOMContentLoaded", async function(){
 
 
 })();
-</script></body>
+</script><script>
+window.toggleSidebar=function(){
+  const sidebar=document.getElementById('sidebar');
+  if(!sidebar)return;
+  const opening=!sidebar.classList.contains('open');
+  sidebar.classList.toggle('open',opening);
+  const button=document.querySelector('.menu-toggle');
+  if(button)button.setAttribute('aria-expanded',String(opening));
+};
+(function(){
+  const sidebar=document.getElementById('sidebar');
+  if(!sidebar)return;
+  const closeSidebar=function(){
+    sidebar.classList.remove('open');
+    const button=document.querySelector('.menu-toggle');
+    if(button)button.setAttribute('aria-expanded','false');
+  };
+  document.addEventListener('click',function(event){
+    if(window.innerWidth<=1000&&sidebar.classList.contains('open')&&!sidebar.contains(event.target)&&!event.target.closest('.menu-toggle'))closeSidebar();
+  });
+  document.addEventListener('keydown',function(event){if(event.key==='Escape')closeSidebar();});
+})();
+</script>
+</body>
 </html>
