@@ -126,14 +126,19 @@ main{max-width:1180px;margin:0 auto;padding:28px 22px 30px}.welcome{min-height:2
                 return "";
             };
             const name = String(getValue(["Student_name", "student_name", "full_name", "name"]) || "Student");
-            const studentClass = String(getValue(["Student class", "Student_class", "student_class", "class_name", "Class"]) || "—");
-            setText("studentName", name + " • Class " + studentClass);
+            const studentClass = String(getValue(["Student class", "Student_class", "student_class", "class_name", "Class"]) || "—").trim();
+            const classLabel = !studentClass || studentClass === "—"
+                ? "Class —"
+                : (/^class(?:\s|$)/i.test(studentClass)
+                    ? studentClass.replace(/^class\s*/i, "Class ")
+                    : "Class " + studentClass);
+            setText("studentName", name + " • " + classLabel);
             setText("welcomeName", name);
-            setText("welcomeClass", "Class " + studentClass);
+            setText("welcomeClass", classLabel);
             setText("profileLabel", name);
-            setText("drawerName", name); setText("drawerClass", "Class " + studentClass);
+            setText("drawerName", name); setText("drawerClass", classLabel);
             setText("drawerInitial", name.trim().charAt(0).toUpperCase() || "S");
-            setText("className", "Class " + studentClass);
+            setText("className", classLabel);
             setText("classMessage", "Your class profile is ready.");
             const photoPath = getValue(["Photo_url", "photo_url", "photo", "image_url", "profile_photo"]);
             if (photoPath) {
