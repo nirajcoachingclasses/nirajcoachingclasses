@@ -2207,7 +2207,7 @@ async function deleteMedia(type, objectPath){
 }
 
 const SECTION_SEARCH_CONFIGS = [
-  {sectionId:"studentsSection",mountSelector:".container",beforeSelector:"#studentsSection",itemSelector:"#studentList tr",placeholder:"Search students by name, father name, mobile or class..."},
+  {sectionId:"studentsSection",mountSelector:"#studentsSection",beforeSelector:"table",itemSelector:"#studentList tr",placeholder:"Search students by name, father name, mobile or class..."},
   {sectionId:"studentLoginSection",mountSelector:"#studentLoginSection",itemSelector:"#portalStudentSelect option",kind:"options",placeholder:"Search student for login..."},
   {sectionId:"feesSection",mountSelector:"#feesSection",itemSelector:"#studentFeeHistoryBody tr",placeholder:"Search fee records..."},
   {sectionId:"pendingSection",mountSelector:"#pendingSection",itemSelector:"#pendingFeesBody tr",placeholder:"Search pending fees..."},
