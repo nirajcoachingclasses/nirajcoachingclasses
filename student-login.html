@@ -28,14 +28,18 @@ const supabaseClient=window.supabase.createClient("https://licsmghlaxqptmzybavp.
 const message=document.getElementById("loginMessage");
 document.getElementById("studentLoginForm").addEventListener("submit",async function(event){
   event.preventDefault();
-  let phone=document.getElementById("studentMobile").value.trim().replace(/[\s()-]/g,"");
-  if(/^\d{10}$/.test(phone)) phone="+91"+phone;
-  else if(/^91\d{10}$/.test(phone)) phone="+"+phone;
+  let mobile=document.getElementById("studentMobile").value.trim().replace(/\D/g,"");
+  if(/^91\d{10}$/.test(mobile)) mobile=mobile.slice(2);
+  if(!/^\d{10}$/.test(mobile)){
+    message.style.color="#c6283d";message.textContent="Sahi 10 digit registered mobile number enter karein.";return;
+  }
   message.style.color="#52657a";message.textContent="Student login ho raha hai...";
-  const {error}=await supabaseClient.auth.signInWithPassword({phone:phone,password:document.getElementById("studentPassword").value});
-  if(error){message.style.color="#c6283d";message.textContent="Login failed: "+error.message;return;}
+  const email=`student-${mobile}@nirajcoachingclasses.example.com`;
+  const {error}=await supabaseClient.auth.signInWithPassword({email,password:document.getElementById("studentPassword").value});
+  if(error){message.style.color="#c6283d";message.textContent="Login failed: mobile number ya password check karein.";return;}
   window.location.href="student-dashboard.html";
 });
 </script>
 </body>
 </html>
+
