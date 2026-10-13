@@ -11,35 +11,45 @@
 </head>
 <body>
 <main class="login-card">
-  <h1 class="portal-title">Student Portal</h1>
-  <img class="logo" src="logo.png" alt="Niraj Coaching Classes">
-  <h2 class="school">Niraj Coaching Classes</h2>
-  <p class="subtitle">STUDENT SIGN IN</p>
-  <form id="studentLoginForm">
-    <input class="field" id="studentMobile" type="tel" inputmode="tel" autocomplete="username" placeholder="Registered mobile number" required>
-    <input class="field" id="studentPassword" type="password" autocomplete="current-password" placeholder="Password" required>
-    <button class="action" type="submit">Student Login</button>
-  </form>
-  <p class="message" id="loginMessage" role="status" aria-live="polite"></p>
-  <p class="help">Password ke liye coaching admin se sampark karein.</p>
+<h1 class="portal-title">Student Portal</h1>
+<img class="logo" src="logo.png" alt="Niraj Coaching Classes">
+<h2 class="school">Niraj Coaching Classes</h2>
+<p class="subtitle">STUDENT SIGN IN</p>
+<form id="studentLoginForm">
+<input class="field" id="studentMobile" type="text" inputmode="text" autocomplete="username" placeholder="Registered mobile number or email" required>
+<input class="field" id="studentPassword" type="password" autocomplete="current-password" placeholder="Password" required>
+<button class="action" id="loginButton" type="submit">Student Login</button>
+</form>
+<p class="message" id="loginMessage" role="status" aria-live="polite"></p>
+<p class="help">Password ke liye coaching admin se sampark karein.</p>
 </main>
 <script>
 const supabaseClient=window.supabase.createClient("https://licsmghlaxqptmzybavp.supabase.co","sb_publishable_lDYQuKhTuj2JEM3SHYrQUw_ZZkEeW50");
+const form=document.getElementById("studentLoginForm");
 const message=document.getElementById("loginMessage");
-document.getElementById("studentLoginForm").addEventListener("submit",async function(event){
-  event.preventDefault();
-  let mobile=document.getElementById("studentMobile").value.trim().replace(/\D/g,"");
-  if(/^91\d{10}$/.test(mobile)) mobile=mobile.slice(2);
-  if(!/^\d{10}$/.test(mobile)){
-    message.style.color="#c6283d";message.textContent="Sahi 10 digit registered mobile number enter karein.";return;
-  }
-  message.style.color="#52657a";message.textContent="Student login ho raha hai...";
-  const email=`student-${mobile}@nirajcoachingclasses.example.com`;
-  const {error}=await supabaseClient.auth.signInWithPassword({email,password:document.getElementById("studentPassword").value});
-  if(error){message.style.color="#c6283d";message.textContent="Login failed: mobile number ya password check karein.";return;}
-  window.location.href="student-dashboard.html";
+const loginButton=document.getElementById("loginButton");
+form.addEventListener("submit",async function(event){
+event.preventDefault();
+const entered=document.getElementById("studentMobile").value.trim();
+let email=entered;
+if(!entered.includes("@")){
+let mobile=entered.replace(/\D/g,"");
+if(/^91\d{10}$/.test(mobile)) mobile=mobile.slice(2);
+if(!/^\d{10}$/.test(mobile)){
+message.style.color="#c6283d";message.textContent="Registered 10 digit mobile number ya email enter karein.";return;
+}
+email="student-"+mobile+"@nirajcoachingclasses.example.com";
+}
+message.style.color="#52657a";message.textContent="Login ho raha hai...";
+loginButton.disabled=true;
+try{
+const {error}=await supabaseClient.auth.signInWithPassword({email,password:document.getElementById("studentPassword").value});
+if(error){message.style.color="#c6283d";message.textContent="Login failed: registered mobile/email aur password check karein.";return;}
+window.location.href="student-dashboard.html";
+}catch(error){
+message.style.color="#c6283d";message.textContent="Login nahi ho saka. Internet connection check karke phir koshish karein.";
+}finally{loginButton.disabled=false;}
 });
 </script>
 </body>
 </html>
-
