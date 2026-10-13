@@ -756,18 +756,31 @@ async function saveNewStudent(){
     const admissionDate=document.getElementById("addAdmissionDate").value;
     const monthlyFee=Number(document.getElementById("addMonthlyFee").value)||0;
     const address=document.getElementById("addAddress").value.trim();
+    const photoFile=document.getElementById("addPhoto").files[0];
     if(!name||!father||!mobile||!studentClass||!admissionDate||monthlyFee<=0){
         alert("Please fill Student Name, Father Name, Mobile, Class, Admission Date and Monthly Fee."); return;
     }
-    const {data:newStudent,error}=await supabaseClient.from("Student").insert([{Student_name:name,Father_name:father,Mobile_number:mobile,"Student class":studentClass,Admission_date:admissionDate,Address:address}]).select().single();
-    if(error){alert("Student save failed: "+error.message+"\n\nSupabase Student table में Admission_date column होना चाहिए।");return;}
+    if(photoFile && !photoFile.type.startsWith("image/")){ alert("Please choose an image file for the student photo."); return; }
+    if(photoFile && photoFile.size > 10 * 1024 * 1024){ alert("Student photo must be 10 MB or less."); return; }
+    let photoPath=null;
+    if(photoFile){
+        const extension=photoFile.name.includes(".") ? photoFile.name.split(".").pop().toLowerCase().replace(/[^a-z0-9]/g,"") : "jpg";
+        photoPath="students/"+Date.now()+"_"+Math.random().toString(36).slice(2)+"."+(extension||"jpg");
+        const {error:photoError}=await supabaseClient.storage.from("student_photos").upload(photoPath,photoFile,{upsert:false,contentType:photoFile.type});
+        if(photoError){ alert("Student photo upload failed: "+photoError.message); return; }
+    }
+    const {data:newStudent,error}=await supabaseClient.from("Student").insert([{Student_name:name,Father_name:father,Mobile_number:mobile,"Student class":studentClass,Admission_date:admissionDate,Address:address,Photo_url:photoPath}]).select().single();
+    if(error){
+        if(photoPath) await supabaseClient.storage.from("student_photos").remove([photoPath]);
+        alert("Student save failed: "+error.message+"\n\nSupabase Student table में Admission_date column होना चाहिए।"); return;
+    }
     const firstMonth=admissionDate.slice(0,7);
     const todayMonth=getCurrentFeeMonth();
     // Create the admission-month fee as the starting record. No fee is created before admission.
     const {error:feeError}=await supabaseClient.from("Fees").insert([{student_id:newStudent.id,fee_month:firstMonth+"-01",monthly_fee:monthlyFee,amount_paid:0,due_fee:monthlyFee,payment_date:null}]);
     if(feeError){alert("Student added, but initial fee could not be created: "+feeError.message);}
     closeAddStudent();
-    ["addName","addFather","addMobile","addClass","addAdmissionDate","addMonthlyFee","addAddress"].forEach(id=>{const e=document.getElementById(id);if(e)e.value="";});
+    ["addName","addFather","addMobile","addClass","addAdmissionDate","addMonthlyFee","addAddress","addPhoto"].forEach(id=>{const e=document.getElementById(id);if(e)e.value="";});
     await loadStudents();
     await createCurrentMonthFees();
     if(typeof updateDashboardStats==='function') updateDashboardStats();
@@ -835,7 +848,6 @@ async function editStudent(id){
         .eq("id", id);
 
     if(error){
-
         alert(
             "Update failed: " +
             error.message
@@ -916,7 +928,7 @@ async function logout(){
 checkLogin();
 let currentEditId = null;
 
-window.editStudent = function(id){
+window.editStudent = async function(id){
 
     const student = students.find(s => String(s.id) === String(id));
 
@@ -941,6 +953,11 @@ window.editStudent = function(id){
 
     document.getElementById("editAddress").value =
         student.Address || "";
+    document.getElementById("editPhoto").value = "";
+    const photoPreview=document.getElementById("editPhotoPreview");
+    const existingPhotoUrl=await getPhotoUrl(student.Photo_url);
+    photoPreview.src=existingPhotoUrl;
+    photoPreview.style.display=existingPhotoUrl ? "block" : "none";
 
     document.getElementById("editModal").style.display =
         "block";
@@ -953,6 +970,10 @@ function closeEditForm(){
         "none";
 
     currentEditId = null;
+    const photoInput=document.getElementById("editPhoto");
+    if(photoInput) photoInput.value="";
+    const photoPreview=document.getElementById("editPhotoPreview");
+    if(photoPreview){photoPreview.removeAttribute("src");photoPreview.style.display="none";}
 }
 
 
@@ -977,6 +998,8 @@ async function saveStudentEdit(){
 
     const address =
         document.getElementById("editAddress").value.trim();
+    const photoFile=document.getElementById("editPhoto").files[0];
+    const currentStudent=students.find(s=>String(s.id)===String(currentEditId));
 
     if(!name || !father || !mobile || !studentClass){
 
@@ -985,6 +1008,15 @@ async function saveStudentEdit(){
         return;
     }
 
+    if(photoFile && !photoFile.type.startsWith("image/")){ alert("Please choose an image file for the student photo."); return; }
+    if(photoFile && photoFile.size > 10 * 1024 * 1024){ alert("Student photo must be 10 MB or less."); return; }
+    let photoPath=null;
+    if(photoFile){
+        const extension=photoFile.name.includes(".") ? photoFile.name.split(".").pop().toLowerCase().replace(/[^a-z0-9]/g,"") : "jpg";
+        photoPath="students/"+Date.now()+"_"+Math.random().toString(36).slice(2)+"."+(extension||"jpg");
+        const {error:photoError}=await supabaseClient.storage.from("student_photos").upload(photoPath,photoFile,{upsert:false,contentType:photoFile.type});
+        if(photoError){ alert("Student photo upload failed: "+photoError.message); return; }
+    }
     const { error } =
         await supabaseClient
         .from("Student")
@@ -993,12 +1025,13 @@ async function saveStudentEdit(){
             Father_name: father,
             Mobile_number: mobile,
             "Student class": studentClass,
-            Address: address
+            Address: address,
+            Photo_url: photoPath || (currentStudent && currentStudent.Photo_url) || null
         })
         .eq("id", currentEditId);
 
     if(error){
-
+        if(photoPath) await supabaseClient.storage.from("student_photos").remove([photoPath]);
         alert(
             "Update failed: " +
             error.message
@@ -2282,6 +2315,9 @@ document.addEventListener("DOMContentLoaded", async function(){
       <input id="addMobile" placeholder="Mobile Number *">
       <input id="addClass" placeholder="Class *">
       <input id="addAdmissionDate" class="full" type="date" title="Admission Date *">
+      <label class="full" for="addPhoto" style="font-size:13px;font-weight:700;color:#526985">Student Photo (optional)
+        <input id="addPhoto" type="file" accept="image/*" style="display:block;width:100%;margin-top:7px;padding:10px;border:1px solid #d7e2ee;border-radius:10px;background:#fff">
+      </label>
       <input id="addMonthlyFee" class="full" type="number" min="0" placeholder="Monthly Fee ₹ *">
       <textarea id="addAddress" placeholder="Address"></textarea>
     </div>
@@ -2330,6 +2366,10 @@ document.addEventListener("DOMContentLoaded", async function(){
             type="date"
             title="Admission Date"
             style="width:100%;padding:12px;margin:7px 0;">
+
+        <label for="editPhoto" style="display:block;margin:10px 0;font-size:13px;font-weight:700;color:#526985">Change Student Photo (optional)</label>
+        <img id="editPhotoPreview" alt="Current student photo" style="display:none;width:82px;height:82px;object-fit:cover;border-radius:10px;margin:6px 0 10px;border:1px solid #ccc">
+        <input id="editPhoto" type="file" accept="image/*" style="width:100%;padding:10px;margin:7px 0;border:1px solid #d7e2ee;border-radius:10px">
 
         <textarea id="editAddress"
             placeholder="Address"
