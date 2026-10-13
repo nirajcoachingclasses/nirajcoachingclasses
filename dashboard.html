@@ -2289,6 +2289,12 @@ document.addEventListener("DOMContentLoaded", async function(){
     });
     sidebar.setAttribute('aria-hidden', String(mobileSidebarQuery.matches));
 
+    const mainArea = document.querySelector(".main-area");
+    ["studentLoginSection","feesSection","pendingSection","historySection","videosSection","photosSection","pdfsSection"].forEach(function(id){
+        const section = document.getElementById(id);
+        if(section && section.parentElement !== mainArea){ mainArea.appendChild(section); }
+    });
+
     showHome();
     observedDashboardMonth = getCurrentFeeMonth();
 
