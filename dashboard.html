@@ -871,41 +871,58 @@ async function editStudent(id){
 }
 
 async function deleteStudent(id){
-
-   const student =
-    students.find(s => String(s.id) === String(id));
+    const student = students.find(function(item){
+        return String(item.id) === String(id);
+    });
     if(!student) return;
 
-    const confirmDelete =
-        confirm(
-            "Delete student " +
-            (student.Student_name || "") +
-            "?"
-        );
+    const confirmed = confirm(
+        "Delete " + (student.Student_name || "this student") + "?
 
-    if(!confirmDelete) return;
+Their fee history will also be deleted. This cannot be undone."
+    );
+    if(!confirmed) return;
 
-    const { error } =
-        await supabaseClient
-        .from("Student")
-        .delete()
-        .eq("id",id);
+    try{
+        // Remove dependent fee rows first so the Student foreign key cannot block deletion.
+        const { error: feesError } = await supabaseClient
+            .from("Fees")
+            .delete()
+            .eq("student_id", student.id);
 
-    if(error){
+        if(feesError){
+            alert("Student was not deleted because their fee records could not be removed: " + feesError.message);
+            return;
+        }
 
-        alert(
-            "Delete failed: " +
-            error.message
-        );
+        const { error: studentError } = await supabaseClient
+            .from("Student")
+            .delete()
+            .eq("id", student.id);
 
-        return;
+        if(studentError){
+            alert("Student delete failed: " + studentError.message);
+            return;
+        }
+
+        if(student.Photo_url){
+            const { error: photoError } = await supabaseClient.storage
+                .from("student_photos")
+                .remove([student.Photo_url]);
+            if(photoError) console.error("Student photo cleanup failed:", photoError);
+        }
+
+        await loadStudents();
+        if(students.some(function(item){ return String(item.id) === String(student.id); })){
+            alert("Student abhi bhi list mein hai. Supabase Row Level Security (RLS) mein Student delete permission check karein.");
+            return;
+        }
+        alert("Student and related fee history deleted successfully.");
+    }catch(error){
+        console.error("Student delete error:", error);
+        alert("Student delete failed: " + (error && error.message ? error.message : "Network error"));
     }
-
-    alert("Student deleted successfully!");
-
-    loadStudents();
 }
-
 
 
 async function updatePremiumDashboard(){
