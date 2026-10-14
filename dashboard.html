@@ -469,119 +469,115 @@ async function loadFeeHistory(){
         body.appendChild(row);
     });
 }
+    function getPreviousFeeMonthKey(dateObj = new Date()){
+        const d = new Date(dateObj.getFullYear(), dateObj.getMonth() - 1, 1);
+        return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0");
+    }
+
+    function getStudentPendingSummary(student, fees, dateObj = new Date()){
+        const studentId = Number(student.id);
+        const admissionMonth = String(student.Admission_date || "").slice(0, 7);
+        const currentMonth = getCurrentFeeMonth();
+        const completedThrough = getPreviousFeeMonthKey(dateObj);
+
+        if(admissionMonth && admissionMonth > completedThrough){
+            return {pending:0, accrued:0, paid:0, credit:0, completedThrough, latestFee:null};
+        }
+
+        const studentFees = (fees || [])
+            .filter(fee => Number(fee.student_id) === studentId)
+            .filter(fee => {
+                const month = String(fee.fee_month || "").slice(0, 7);
+                if(!month || month > currentMonth) return false;
+                if(admissionMonth && month < admissionMonth) return false;
+                return true;
+            })
+            .sort((a,b) => String(a.fee_month || "").slice(0,7).localeCompare(String(b.fee_month || "").slice(0,7)));
+
+        const completedFees = studentFees.filter(fee => String(fee.fee_month || "").slice(0,7) <= completedThrough);
+        const accrued = completedFees.reduce((sum, fee) => sum + Number(fee.monthly_fee || 0), 0);
+        const paid = studentFees.reduce((sum, fee) => sum + Number(fee.amount_paid || 0), 0);
+        const pending = Math.max(accrued - paid, 0);
+        const credit = Math.max(paid - accrued, 0);
+        const latestFee = studentFees.length ? studentFees[studentFees.length - 1] : null;
+
+        return {pending, accrued, paid, credit, completedThrough, latestFee};
+    }
+
     async function loadPendingFees(){
 
-    const body = document.getElementById("pendingFeesBody");
+        const body = document.getElementById("pendingFeesBody");
+        if(!body) return;
 
-    if(!body) return;
+        body.innerHTML =
+            '<tr><td colspan="9" style="padding:15px;text-align:center;">Loading...</td></tr>';
 
-    body.innerHTML =
-        '<tr><td colspan="9" style="padding:15px;text-align:center;">Loading...</td></tr>';
+        const { data, error } = await supabaseClient
+            .from("Fees")
+            .select("*")
+            .order("fee_month", { ascending: false });
 
-    const { data, error } = await supabaseClient
-        .from("Fees")
-        .select("*")
-        .order("fee_month", { ascending: false });
-    const latestFees = [];
-const seenStudents = new Set();
-
-(data || []).forEach(fee => {
-    const studentKey = String(fee.student_id);
-
-    if(!seenStudents.has(studentKey)){
-        seenStudents.add(studentKey);
-
-        if(Number(fee.due_fee || 0) > 0){
-            latestFees.push(fee);
+        if(error){
+            body.innerHTML =
+                '<tr><td colspan="9" style="padding:15px;text-align:center;">' +
+                error.message +
+                '</td></tr>';
+            return;
         }
-    }
-}); 
-    if(error){
-        body.innerHTML =
-            '<tr><td colspan="9" style="padding:15px;text-align:center;">' +
-            error.message +
-            '</td></tr>';
-        return;
-    }
 
-   if(!latestFees || latestFees.length === 0){
-        body.innerHTML =
-            '<tr><td colspan="9" style="padding:15px;text-align:center;">No pending fees</td></tr>';
-        return;
-    }
+        const pendingRows = [];
+        (students || []).forEach(student => {
+            const summary = getStudentPendingSummary(student, data || []);
+            if(summary.pending > 0){
+                pendingRows.push({student, summary});
+            }
+        });
 
-    body.innerHTML = "";
+        if(!pendingRows.length){
+            body.innerHTML =
+                '<tr><td colspan="9" style="padding:15px;text-align:center;">No pending fees</td></tr>';
+            return;
+        }
 
-  latestFees.forEach(function(fee){
-        const student = students.find(
-            s => String(s.id) === String(fee.student_id)
-        );
+        body.innerHTML = "";
 
-        const totalPayable =
-            Number(fee.amount_paid || 0) +
-            Number(fee.due_fee || 0);
+        pendingRows.forEach(({student, summary}) => {
+            const latestFee = summary.latestFee || {};
+            const totalPayable = summary.accrued;
+            const paid = summary.paid;
+            const due = summary.pending;
+            const studentId = String(student.id);
+            const feeMonthLabel = summary.completedThrough
+                ? "Through " + summary.completedThrough
+                : "-";
 
-        const row = document.createElement("tr");
+            const row = document.createElement("tr");
 
-        row.innerHTML = `
-            <td style="padding:10px;">
-                ${student ? student.Student_name : "Unknown"}
-            </td>
+            row.innerHTML = `
+                <td style="padding:10px;">${student.Student_name || "Unknown"}</td>
+                <td style="padding:10px;">${student.Father_name || ""}</td>
+                <td style="padding:10px;">${student.Mobile_number || ""}</td>
+                <td style="padding:10px;">${student["Student class"] || ""}</td>
+                <td style="padding:10px;">${feeMonthLabel}</td>
+                <td style="padding:10px;">₹${totalPayable.toLocaleString("en-IN")}</td>
+                <td style="padding:10px;">₹${paid.toLocaleString("en-IN")}</td>
+                <td style="padding:10px;">₹${due.toLocaleString("en-IN")}</td>
+                <td style="padding:10px;">
+                    <a
+                        href="https://wa.me/91${student.Mobile_number || ''}?text=Dear%20Parent,%20your%20child%20${encodeURIComponent(student.Student_name || '')}%20has%20a%20pending%20fee%20of%20₹${due}%20through%20${encodeURIComponent(summary.completedThrough || '')}."
+                        target="_blank"
+                        style="background:#25D366;color:white;padding:7px 10px;border-radius:5px;text-decoration:none;"
+                    >WhatsApp</a>
+                    <br><br>
+                    <button
+                        onclick="collectStudentPendingFee('${studentId}', '${due}', '${latestFee.id || ''}')"
+                        style="background:#1976d2;color:white;padding:7px 10px;border:0;border-radius:5px;cursor:pointer;"
+                    >💵 Collect</button>
+                </td>
+            `;
 
-            <td style="padding:10px;">
-                ${student ? student.Father_name : ""}
-            </td>
-
-            <td style="padding:10px;">
-                ${student ? student.Mobile_number : ""}
-            </td>
-
-            <td style="padding:10px;">
-                ${student ? student["Student class"] : ""}
-
-</td>
-<td style="padding:10px;">
-    ${fee.fee_month || ""}
-</td>
-<td style="padding:10px;">
-    ₹${totalPayable}
-</td>
-
-<td style="padding:10px;">
-    ₹${fee.amount_paid || 0}
-</td>
-
-<td style="padding:10px;">
-    ₹${fee.due_fee || 0}
-</td>
-
-<td style="padding:10px;">
-    <a
-        href="https://wa.me/91${student ? student.Mobile_number : ''}?text=Dear%20Parent,%20your%20child%20${student ? student.Student_name : ''}%20has%20a%20pending%20fee%20of%20₹${fee.due_fee || 0}%20for%20${fee.fee_month || ''}."
-        target="_blank"
-        style="background:#25D366;color:white;padding:7px 10px;border-radius:5px;text-decoration:none;"
-    >
-        WhatsApp
-    </a>
-    <br><br>
-
-    <button
-        onclick="collectPendingFee(
-            '${fee.id}',
-            '${fee.student_id}',
-            '${fee.due_fee || 0}',
-            '${fee.monthly_fee || 0}',
-            '${fee.fee_month || ''}'
-        )"
-        style="background:#1976d2;color:white;padding:7px 10px;border:0;border-radius:5px;cursor:pointer;"
-    >
-        💵 Collect
-    </button>
-</td>
-`;
-
-body.appendChild(row);
-});
+            body.appendChild(row);
+        });
     }
 async function loadStudents(){
 
@@ -924,17 +920,32 @@ async function updatePremiumDashboard(){
     const totalEl=document.getElementById("dashTotalStudents"); if(totalEl) totalEl.textContent=students.length;
     const classes={}; students.forEach(s=>{const c=s["Student class"]||"Other"; classes[c]=(classes[c]||0)+1;});
     const classTiles=document.getElementById("classTiles"); if(classTiles){classTiles.innerHTML=Object.entries(classes).sort((a,b)=>a[0].localeCompare(b[0],undefined,{numeric:true})).slice(0,8).map(([c,n])=>`<div class="class-tile"><span>${c}</span><b>${n}</b></div>`).join("") || '<div class="class-tile">No data</div>';}
-    const {data:fees,error}=await supabaseClient.from("Fees").select("student_id,fee_month,monthly_fee,amount_paid,due_fee,payment_date").order("fee_month",{ascending:false});
+    const {data:fees,error}=await supabaseClient.from("Fees").select("student_id,fee_month,monthly_fee,amount_paid,due_fee,payment_date,id").order("fee_month",{ascending:false});
     if(error||!fees) return;
-    const latest=new Map(); fees.forEach(f=>{const k=String(f.student_id); if(!latest.has(k)) latest.set(k,f);});
-    let pending=0,paid=0; latest.forEach(f=>{pending+=Number(f.due_fee||0); if(Number(f.due_fee||0)<=0) paid++;});
-    const now=new Date(); const ym=now.toISOString().slice(0,7); const current=fees.filter(f=>String(f.fee_month||"").slice(0,7)===ym); const collection=current.reduce((a,f)=>a+Number(f.amount_paid||0),0);
-    const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;}; set("dashCollection","₹"+collection.toLocaleString("en-IN")); set("dashPending","₹"+pending.toLocaleString("en-IN")); set("dashPendingStudents",Array.from(latest.values()).filter(f=>Number(f.due_fee||0)>0).length+" Students"); set("dashPaidStudents",paid);
+
+    let pending=0,paidStudents=0,pendingStudents=0;
+    students.forEach(student=>{
+        const summary=getStudentPendingSummary(student, fees);
+        pending += summary.pending;
+        if(summary.pending > 0) pendingStudents++;
+        else paidStudents++;
+    });
+
+    const now=new Date();
+    const ym=now.toISOString().slice(0,7);
+    const current=fees.filter(f=>String(f.fee_month||"").slice(0,7)===ym);
+    const collection=current.reduce((a,f)=>a+Number(f.amount_paid||0),0);
+    const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
+    set("dashCollection","₹"+collection.toLocaleString("en-IN"));
+    set("dashPending","₹"+pending.toLocaleString("en-IN"));
+    set("dashPendingStudents",pendingStudents+" Students");
+    set("dashPaidStudents",paidStudents);
+
     const months=[]; const d=new Date(now.getFullYear(),now.getMonth()-5,1); for(let i=0;i<6;i++){months.push(new Date(d.getFullYear(),d.getMonth()+i,1));}
     const vals=months.map(m=>{const key=m.toISOString().slice(0,7);return fees.filter(f=>String(f.fee_month||"").slice(0,7)===key).reduce((a,f)=>a+Number(f.amount_paid||0),0);}); const max=Math.max(...vals,1);
     const chart=document.getElementById("feeChart"); if(chart) chart.innerHTML=months.map((m,i)=>`<div class="bar-wrap"><div class="bar" style="height:${Math.max(5,Math.round(vals[i]/max*88))}%" title="₹${vals[i].toLocaleString("en-IN")}"></div><div class="bar-label">${m.toLocaleString("en-US",{month:"short"})}</div></div>`).join("");
     const activity=document.getElementById("recentActivity"); if(activity){activity.innerHTML=fees.slice(0,5).map((f,i)=>{const st=students.find(x=>String(x.id)===String(f.student_id));return `<div class="activity-item"><div class="activity-dot">${Number(f.amount_paid||0)>0?'₹':'!'}</div><div><strong>${st?st.Student_name:'Student'}</strong> — Fee ${Number(f.due_fee||0)<=0?'paid':'recorded'} (₹${Number(f.amount_paid||0).toLocaleString('en-IN')})</div><small>${f.payment_date||f.fee_month||''}</small></div>`}).join("")||'<div class="activity-item">No recent activity</div>';}
-    const rem=document.getElementById("dashReminders"); if(rem){const arr=Array.from(latest.entries()).filter(([k,f])=>Number(f.due_fee||0)>0).slice(0,5); rem.innerHTML='<div class="mini-row head"><span>Student</span><span>Class</span><span>Month</span><span>Due</span></div>'+arr.map(([k,f])=>{const st=students.find(x=>String(x.id)===k);return `<div class="mini-row"><span>${st?st.Student_name:'Student'}</span><span>${st?st['Student class']:''}</span><span>${f.fee_month||''}</span><span class="due">₹${Number(f.due_fee||0).toLocaleString('en-IN')}</span></div>`}).join('');}
+    const rem=document.getElementById("dashReminders"); if(rem){const arr=students.map(st=>({st,summary:getStudentPendingSummary(st,fees)})).filter(x=>x.summary.pending>0).sort((a,b)=>b.summary.pending-a.summary.pending).slice(0,5); rem.innerHTML='<div class="mini-row head"><span>Student</span><span>Class</span><span>Through</span><span>Due</span></div>'+arr.map(x=>`<div class="mini-row"><span>${x.st.Student_name||'Student'}</span><span>${x.st['Student class']||''}</span><span>${x.summary.completedThrough||''}</span><span class="due">₹${x.summary.pending.toLocaleString('en-IN')}</span></div>`).join('');}
 }
 
 async function saveNotice(){
@@ -2029,23 +2040,12 @@ totalMonthlyFee += monthly;
                 🖨️ Print
             </button>
 
-        
-
-</body>
+        </body>
         </html>
     `);
 
     printWindow.document.close();
 }
-let currentMonthFeesCreating = false;
-let observedDashboardMonth = "";
-
-function getCurrentFeeMonth(){
-    const now = new Date();
-    return now.getFullYear() + "-" +
-        String(now.getMonth() + 1).padStart(2, "0");
-}
-
 async function createCurrentMonthFees(){
 
     // Prevent overlapping calls in this page (for example, during login and refresh).
