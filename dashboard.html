@@ -284,7 +284,7 @@ body{background:#eef3f9;color:#0f1f3d;font-family:Inter,Segoe UI,Arial,sans-seri
 @media(max-width:760px){.app-shell,.app-shell.sidebar-collapsed{--sidebar-width:0px}.sidebar{width:270px;transform:translateX(-100%)}.sidebar.open{transform:translateX(0)}.app-shell.mobile-sidebar-open .sidebar-backdrop{display:block}.main-area{margin-left:0;width:100%;padding:0 10px 20px}.topbar-premium{margin:0 -10px 10px;padding:8px 10px}.menu-btn{display:block;width:42px;height:42px;border:0;background:#f1f5fa;border-radius:12px;font-size:21px}.admin-profile{display:flex}.admin-profile>span:last-child{display:none}.hero-premium{min-height:250px;display:block}.hero-copy{padding:24px 20px}.hero-copy h1{font-size:34px}.hero-copy h2{font-size:19px}.hero-pills{display:none}.hero-art{width:100%;height:95px;padding:8px 15px}.hero-building{min-width:0;width:100%;height:80px;justify-content:flex-start;padding-left:16px}.hero-building img{width:54px;height:54px}.hero-building b{font-size:18px}.hero-building span{font-size:14px}.kpi-grid{grid-template-columns:1fr 1fr;gap:10px}.kpi{min-height:105px;padding:13px}.kpi-icon{width:45px;height:45px;font-size:20px}.kpi strong{font-size:21px}.kpi>b{display:none}.dashboard-grid{grid-template-columns:1fr}.class-tiles{grid-template-columns:repeat(4,1fr)}.quick-actions{grid-template-columns:repeat(2,1fr)}.bottom-grid{grid-template-columns:1fr}.search-wrap{max-width:none}.icon-btn{display:none}.fee-chart{gap:7px}.bar{width:55%;}.main-area .dashboard-section{margin:12px 0}}
 
 
-.add-student-btn{background:#0d79f2;color:#fff;border:0;border-radius:10px;padding:10px 14px;font-weight:800;cursor:pointer}.students-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}.student-modal{display:none;position:fixed;inset:0;background:rgba(5,18,38,.62);z-index:9999;padding:20px;overflow:auto}.student-modal-box{max-width:560px;margin:30px auto;background:#fff;border-radius:18px;padding:22px;box-shadow:0 20px 60px rgba(0,0,0,.25)}.student-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.student-form-grid input,.student-form-grid textarea{width:100%;box-sizing:border-box;padding:12px;border:1px solid #d7e2ee;border-radius:10px;font:inherit}.student-form-grid textarea{min-height:90px;grid-column:1/-1}.student-form-grid .full{grid-column:1/-1}.modal-actions{display:flex;gap:10px;margin-top:14px}.modal-actions button{flex:1;padding:12px;border:0;border-radius:10px;font-weight:800;cursor:pointer}.save-student{background:#0d79f2;color:#fff}.cancel-student{background:#edf2f7;color:#17375f}
+.add-student-btn{background:#0d79f2;color:#fff;border:0;border-radius:10px;padding:10px 14px;font-weight:800;cursor:pointer}.students-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}.student-modal{display:none;position:fixed;inset:0;background:rgba(5,18,38,.62);z-index:9999;padding:20px;overflow:auto}.student-modal-box{max-width:560px;margin:30px auto;background:#fff;border-radius:18px;padding:22px;box-shadow:0 20px 60px rgba(0,0,0,.25)}.student-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.student-form-grid input,.student-form-grid textarea{width:100%;box-sizing:border-box;padding:12px;border:1px solid #d7e2ee;border-radius:10px;font:inherit}.student-form-grid textarea{min-height:90px;grid-column:1/-1}.student-form-grid .full{grid-column:1/-1}.modal-actions{display:flex;gap:10px;margin-top:14px}.modal-actions button{flex:1;padding:12px;border:0;border-radius:10px;font-weight:800;cursor:pointer}.save-student{background:#0d79f2;color:#fff}.cancel-student{background:#edf2f7;color:#17375f}.family-panel{grid-column:1/-1;border:1px solid #dbe7f3;background:#f8fbff;border-radius:12px;padding:12px}.family-panel h4{margin:0 0 8px;color:#17375f}.family-panel select,.family-panel input{width:100%;box-sizing:border-box;padding:11px;border:1px solid #cbd9e8;border-radius:9px;font:inherit;background:#fff}.family-members{margin-top:12px;border-top:1px solid #e3edf6;padding-top:10px}.family-member{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 10px;margin-top:7px;background:#fff;border:1px solid #e5edf5;border-radius:9px}.family-member button{border:0;background:#eaf3ff;color:#0d63b5;border-radius:8px;padding:7px 10px;font-weight:700;cursor:pointer}.family-muted{font-size:12px;color:#64748b;margin-top:5px}
 @media(max-width:600px){.student-form-grid{grid-template-columns:1fr}.student-form-grid textarea,.student-form-grid .full{grid-column:auto}}
 
 </style>
@@ -417,6 +417,7 @@ async function checkLogin(){
 
     await createCurrentMonthFees();
     await loadStudents();
+    await loadFamilies();
 }
 
 async function loadFeeHistory(){
@@ -469,115 +470,119 @@ async function loadFeeHistory(){
         body.appendChild(row);
     });
 }
-    function getPreviousFeeMonthKey(dateObj = new Date()){
-        const d = new Date(dateObj.getFullYear(), dateObj.getMonth() - 1, 1);
-        return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0");
-    }
-
-    function getStudentPendingSummary(student, fees, dateObj = new Date()){
-        const studentId = Number(student.id);
-        const admissionMonth = String(student.Admission_date || "").slice(0, 7);
-        const currentMonth = getCurrentFeeMonth();
-        const completedThrough = getPreviousFeeMonthKey(dateObj);
-
-        if(admissionMonth && admissionMonth > completedThrough){
-            return {pending:0, accrued:0, paid:0, credit:0, completedThrough, latestFee:null};
-        }
-
-        const studentFees = (fees || [])
-            .filter(fee => Number(fee.student_id) === studentId)
-            .filter(fee => {
-                const month = String(fee.fee_month || "").slice(0, 7);
-                if(!month || month > currentMonth) return false;
-                if(admissionMonth && month < admissionMonth) return false;
-                return true;
-            })
-            .sort((a,b) => String(a.fee_month || "").slice(0,7).localeCompare(String(b.fee_month || "").slice(0,7)));
-
-        const completedFees = studentFees.filter(fee => String(fee.fee_month || "").slice(0,7) <= completedThrough);
-        const accrued = completedFees.reduce((sum, fee) => sum + Number(fee.monthly_fee || 0), 0);
-        const paid = studentFees.reduce((sum, fee) => sum + Number(fee.amount_paid || 0), 0);
-        const pending = Math.max(accrued - paid, 0);
-        const credit = Math.max(paid - accrued, 0);
-        const latestFee = studentFees.length ? studentFees[studentFees.length - 1] : null;
-
-        return {pending, accrued, paid, credit, completedThrough, latestFee};
-    }
-
     async function loadPendingFees(){
 
-        const body = document.getElementById("pendingFeesBody");
-        if(!body) return;
+    const body = document.getElementById("pendingFeesBody");
 
+    if(!body) return;
+
+    body.innerHTML =
+        '<tr><td colspan="9" style="padding:15px;text-align:center;">Loading...</td></tr>';
+
+    const { data, error } = await supabaseClient
+        .from("Fees")
+        .select("*")
+        .order("fee_month", { ascending: false });
+    const latestFees = [];
+const seenStudents = new Set();
+
+(data || []).forEach(fee => {
+    const studentKey = String(fee.student_id);
+
+    if(!seenStudents.has(studentKey)){
+        seenStudents.add(studentKey);
+
+        if(Number(fee.due_fee || 0) > 0){
+            latestFees.push(fee);
+        }
+    }
+}); 
+    if(error){
         body.innerHTML =
-            '<tr><td colspan="9" style="padding:15px;text-align:center;">Loading...</td></tr>';
+            '<tr><td colspan="9" style="padding:15px;text-align:center;">' +
+            error.message +
+            '</td></tr>';
+        return;
+    }
 
-        const { data, error } = await supabaseClient
-            .from("Fees")
-            .select("*")
-            .order("fee_month", { ascending: false });
+   if(!latestFees || latestFees.length === 0){
+        body.innerHTML =
+            '<tr><td colspan="9" style="padding:15px;text-align:center;">No pending fees</td></tr>';
+        return;
+    }
 
-        if(error){
-            body.innerHTML =
-                '<tr><td colspan="9" style="padding:15px;text-align:center;">' +
-                error.message +
-                '</td></tr>';
-            return;
-        }
+    body.innerHTML = "";
 
-        const pendingRows = [];
-        (students || []).forEach(student => {
-            const summary = getStudentPendingSummary(student, data || []);
-            if(summary.pending > 0){
-                pendingRows.push({student, summary});
-            }
-        });
+  latestFees.forEach(function(fee){
+        const student = students.find(
+            s => String(s.id) === String(fee.student_id)
+        );
 
-        if(!pendingRows.length){
-            body.innerHTML =
-                '<tr><td colspan="9" style="padding:15px;text-align:center;">No pending fees</td></tr>';
-            return;
-        }
+        const totalPayable =
+            Number(fee.amount_paid || 0) +
+            Number(fee.due_fee || 0);
 
-        body.innerHTML = "";
+        const row = document.createElement("tr");
 
-        pendingRows.forEach(({student, summary}) => {
-            const latestFee = summary.latestFee || {};
-            const totalPayable = summary.accrued;
-            const paid = summary.paid;
-            const due = summary.pending;
-            const studentId = String(student.id);
-            const feeMonthLabel = summary.completedThrough
-                ? "Through " + summary.completedThrough
-                : "-";
+        row.innerHTML = `
+            <td style="padding:10px;">
+                ${student ? student.Student_name : "Unknown"}
+            </td>
 
-            const row = document.createElement("tr");
+            <td style="padding:10px;">
+                ${student ? student.Father_name : ""}
+            </td>
 
-            row.innerHTML = `
-                <td style="padding:10px;">${student.Student_name || "Unknown"}</td>
-                <td style="padding:10px;">${student.Father_name || ""}</td>
-                <td style="padding:10px;">${student.Mobile_number || ""}</td>
-                <td style="padding:10px;">${student["Student class"] || ""}</td>
-                <td style="padding:10px;">${feeMonthLabel}</td>
-                <td style="padding:10px;">₹${totalPayable.toLocaleString("en-IN")}</td>
-                <td style="padding:10px;">₹${paid.toLocaleString("en-IN")}</td>
-                <td style="padding:10px;">₹${due.toLocaleString("en-IN")}</td>
-                <td style="padding:10px;">
-                    <a
-                        href="https://wa.me/91${student.Mobile_number || ''}?text=Dear%20Parent,%20your%20child%20${encodeURIComponent(student.Student_name || '')}%20has%20a%20pending%20fee%20of%20₹${due}%20through%20${encodeURIComponent(summary.completedThrough || '')}."
-                        target="_blank"
-                        style="background:#25D366;color:white;padding:7px 10px;border-radius:5px;text-decoration:none;"
-                    >WhatsApp</a>
-                    <br><br>
-                    <button
-                        onclick="collectStudentPendingFee('${studentId}', '${due}', '${latestFee.id || ''}')"
-                        style="background:#1976d2;color:white;padding:7px 10px;border:0;border-radius:5px;cursor:pointer;"
-                    >💵 Collect</button>
-                </td>
-            `;
+            <td style="padding:10px;">
+                ${student ? student.Mobile_number : ""}
+            </td>
 
-            body.appendChild(row);
-        });
+            <td style="padding:10px;">
+                ${student ? student["Student class"] : ""}
+
+</td>
+<td style="padding:10px;">
+    ${fee.fee_month || ""}
+</td>
+<td style="padding:10px;">
+    ₹${totalPayable}
+</td>
+
+<td style="padding:10px;">
+    ₹${fee.amount_paid || 0}
+</td>
+
+<td style="padding:10px;">
+    ₹${fee.due_fee || 0}
+</td>
+
+<td style="padding:10px;">
+    <a
+        href="https://wa.me/91${student ? student.Mobile_number : ''}?text=Dear%20Parent,%20your%20child%20${student ? student.Student_name : ''}%20has%20a%20pending%20fee%20of%20₹${fee.due_fee || 0}%20for%20${fee.fee_month || ''}."
+        target="_blank"
+        style="background:#25D366;color:white;padding:7px 10px;border-radius:5px;text-decoration:none;"
+    >
+        WhatsApp
+    </a>
+    <br><br>
+
+    <button
+        onclick="collectPendingFee(
+            '${fee.id}',
+            '${fee.student_id}',
+            '${fee.due_fee || 0}',
+            '${fee.monthly_fee || 0}',
+            '${fee.fee_month || ''}'
+        )"
+        style="background:#1976d2;color:white;padding:7px 10px;border:0;border-radius:5px;cursor:pointer;"
+    >
+        💵 Collect
+    </button>
+</td>
+`;
+
+body.appendChild(row);
+});
     }
 async function loadStudents(){
 
@@ -745,8 +750,10 @@ document
 
 
 
-function openAddStudent(){
+async function openAddStudent(){
     document.getElementById("addStudentModal").style.display="block";
+    await loadFamilies();
+    toggleAddFamilyMode();
     const d=document.getElementById("addAdmissionDate");
     if(d && !d.value) d.value=new Date().toISOString().slice(0,10);
 }
@@ -762,33 +769,40 @@ async function saveNewStudent(){
     const monthlyFee=Number(document.getElementById("addMonthlyFee").value)||0;
     const address=document.getElementById("addAddress").value.trim();
     const photoFile=document.getElementById("addPhoto").files[0];
-    if(!name||!father||!mobile||!studentClass||!admissionDate||monthlyFee<=0){
-        alert("Please fill Student Name, Father Name, Mobile, Class, Admission Date and Monthly Fee."); return;
-    }
-    if(photoFile && !photoFile.type.startsWith("image/")){ alert("Please choose an image file for the student photo."); return; }
-    if(photoFile && photoFile.size > 10 * 1024 * 1024){ alert("Student photo must be 10 MB or less."); return; }
+    const familyMode=document.getElementById("addFamilyMode").value;
+    const familyName=document.getElementById("addFamilyName").value.trim();
+    const familyIdValue=document.getElementById("addFamilyId").value;
+    if(!name||!father||!mobile||!studentClass||!admissionDate||monthlyFee<=0){alert("Please fill Student Name, Father Name, Mobile, Class, Admission Date and Monthly Fee.");return;}
+    if(familyMode==="new"&&!familyName){alert("Please enter Family Name.");return;}
+    if(familyMode==="existing"&&!familyIdValue){alert("Please select an Existing Family.");return;}
+    if(photoFile&&!photoFile.type.startsWith("image/")){alert("Please choose an image file for the student photo.");return;}
+    if(photoFile&&photoFile.size>10*1024*1024){alert("Student photo must be 10 MB or less.");return;}
+    let familyId=null;
+    if(familyMode==="new"){
+        const {data:family,error:familyError}=await supabaseClient.from("families").insert([{family_name:familyName}]).select().single();
+        if(familyError){alert("Family save failed: "+familyError.message+"\n\nSupabase families table की RLS policy check करें।");return;}
+        familyId=family.id;
+    }else if(familyMode==="existing"){familyId=Number(familyIdValue);}
     let photoPath=null;
     if(photoFile){
-        const extension=photoFile.name.includes(".") ? photoFile.name.split(".").pop().toLowerCase().replace(/[^a-z0-9]/g,"") : "jpg";
+        const extension=photoFile.name.includes(".")?photoFile.name.split(".").pop().toLowerCase().replace(/[^a-z0-9]/g,""):"jpg";
         photoPath="students/"+Date.now()+"_"+Math.random().toString(36).slice(2)+"."+(extension||"jpg");
         const {error:photoError}=await supabaseClient.storage.from("student_photos").upload(photoPath,photoFile,{upsert:false,contentType:photoFile.type});
-        if(photoError){ alert("Student photo upload failed: "+photoError.message); return; }
+        if(photoError){alert("Student photo upload failed: "+photoError.message);return;}
     }
-    const {data:newStudent,error}=await supabaseClient.from("Student").insert([{Student_name:name,Father_name:father,Mobile_number:mobile,"Student class":studentClass,Admission_date:admissionDate,Address:address,Photo_url:photoPath}]).select().single();
+    const {data:newStudent,error}=await supabaseClient.from("Student").insert([{Student_name:name,Father_name:father,Mobile_number:mobile,"Student class":studentClass,Admission_date:admissionDate,Address:address,Photo_url:photoPath,family_id:familyId}]).select().single();
     if(error){
-        if(photoPath) await supabaseClient.storage.from("student_photos").remove([photoPath]);
-        alert("Student save failed: "+error.message+"\n\nSupabase Student table में Admission_date column होना चाहिए।"); return;
+        if(photoPath)await supabaseClient.storage.from("student_photos").remove([photoPath]);
+        alert("Student save failed: "+error.message+"\n\nStudent table में family_id column होना चाहिए।");return;
     }
     const firstMonth=admissionDate.slice(0,7);
-    const todayMonth=getCurrentFeeMonth();
-    // Create the admission-month fee as the starting record. No fee is created before admission.
     const {error:feeError}=await supabaseClient.from("Fees").insert([{student_id:newStudent.id,fee_month:firstMonth+"-01",monthly_fee:monthlyFee,amount_paid:0,due_fee:monthlyFee,payment_date:null}]);
-    if(feeError){alert("Student added, but initial fee could not be created: "+feeError.message);}
+    if(feeError)alert("Student added, but initial fee could not be created: "+feeError.message);
     closeAddStudent();
-    ["addName","addFather","addMobile","addClass","addAdmissionDate","addMonthlyFee","addAddress","addPhoto"].forEach(id=>{const e=document.getElementById(id);if(e)e.value="";});
-    await loadStudents();
-    await createCurrentMonthFees();
-    if(typeof updateDashboardStats==='function') updateDashboardStats();
+    ["addName","addFather","addMobile","addClass","addAdmissionDate","addMonthlyFee","addAddress","addPhoto","addFamilyName"].forEach(id=>{const x=document.getElementById(id);if(x)x.value="";});
+    document.getElementById("addFamilyMode").value="none";toggleAddFamilyMode();
+    await loadStudents();await loadFamilies();await createCurrentMonthFees();
+    if(typeof updateDashboardStats==="function")updateDashboardStats();
     alert("Student added successfully. Fee calculation will start from "+firstMonth+".");
 }
 
@@ -920,32 +934,17 @@ async function updatePremiumDashboard(){
     const totalEl=document.getElementById("dashTotalStudents"); if(totalEl) totalEl.textContent=students.length;
     const classes={}; students.forEach(s=>{const c=s["Student class"]||"Other"; classes[c]=(classes[c]||0)+1;});
     const classTiles=document.getElementById("classTiles"); if(classTiles){classTiles.innerHTML=Object.entries(classes).sort((a,b)=>a[0].localeCompare(b[0],undefined,{numeric:true})).slice(0,8).map(([c,n])=>`<div class="class-tile"><span>${c}</span><b>${n}</b></div>`).join("") || '<div class="class-tile">No data</div>';}
-    const {data:fees,error}=await supabaseClient.from("Fees").select("student_id,fee_month,monthly_fee,amount_paid,due_fee,payment_date,id").order("fee_month",{ascending:false});
+    const {data:fees,error}=await supabaseClient.from("Fees").select("student_id,fee_month,monthly_fee,amount_paid,due_fee,payment_date").order("fee_month",{ascending:false});
     if(error||!fees) return;
-
-    let pending=0,paidStudents=0,pendingStudents=0;
-    students.forEach(student=>{
-        const summary=getStudentPendingSummary(student, fees);
-        pending += summary.pending;
-        if(summary.pending > 0) pendingStudents++;
-        else paidStudents++;
-    });
-
-    const now=new Date();
-    const ym=now.toISOString().slice(0,7);
-    const current=fees.filter(f=>String(f.fee_month||"").slice(0,7)===ym);
-    const collection=current.reduce((a,f)=>a+Number(f.amount_paid||0),0);
-    const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
-    set("dashCollection","₹"+collection.toLocaleString("en-IN"));
-    set("dashPending","₹"+pending.toLocaleString("en-IN"));
-    set("dashPendingStudents",pendingStudents+" Students");
-    set("dashPaidStudents",paidStudents);
-
+    const latest=new Map(); fees.forEach(f=>{const k=String(f.student_id); if(!latest.has(k)) latest.set(k,f);});
+    let pending=0,paid=0; latest.forEach(f=>{pending+=Number(f.due_fee||0); if(Number(f.due_fee||0)<=0) paid++;});
+    const now=new Date(); const ym=now.toISOString().slice(0,7); const current=fees.filter(f=>String(f.fee_month||"").slice(0,7)===ym); const collection=current.reduce((a,f)=>a+Number(f.amount_paid||0),0);
+    const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;}; set("dashCollection","₹"+collection.toLocaleString("en-IN")); set("dashPending","₹"+pending.toLocaleString("en-IN")); set("dashPendingStudents",Array.from(latest.values()).filter(f=>Number(f.due_fee||0)>0).length+" Students"); set("dashPaidStudents",paid);
     const months=[]; const d=new Date(now.getFullYear(),now.getMonth()-5,1); for(let i=0;i<6;i++){months.push(new Date(d.getFullYear(),d.getMonth()+i,1));}
     const vals=months.map(m=>{const key=m.toISOString().slice(0,7);return fees.filter(f=>String(f.fee_month||"").slice(0,7)===key).reduce((a,f)=>a+Number(f.amount_paid||0),0);}); const max=Math.max(...vals,1);
     const chart=document.getElementById("feeChart"); if(chart) chart.innerHTML=months.map((m,i)=>`<div class="bar-wrap"><div class="bar" style="height:${Math.max(5,Math.round(vals[i]/max*88))}%" title="₹${vals[i].toLocaleString("en-IN")}"></div><div class="bar-label">${m.toLocaleString("en-US",{month:"short"})}</div></div>`).join("");
     const activity=document.getElementById("recentActivity"); if(activity){activity.innerHTML=fees.slice(0,5).map((f,i)=>{const st=students.find(x=>String(x.id)===String(f.student_id));return `<div class="activity-item"><div class="activity-dot">${Number(f.amount_paid||0)>0?'₹':'!'}</div><div><strong>${st?st.Student_name:'Student'}</strong> — Fee ${Number(f.due_fee||0)<=0?'paid':'recorded'} (₹${Number(f.amount_paid||0).toLocaleString('en-IN')})</div><small>${f.payment_date||f.fee_month||''}</small></div>`}).join("")||'<div class="activity-item">No recent activity</div>';}
-    const rem=document.getElementById("dashReminders"); if(rem){const arr=students.map(st=>({st,summary:getStudentPendingSummary(st,fees)})).filter(x=>x.summary.pending>0).sort((a,b)=>b.summary.pending-a.summary.pending).slice(0,5); rem.innerHTML='<div class="mini-row head"><span>Student</span><span>Class</span><span>Through</span><span>Due</span></div>'+arr.map(x=>`<div class="mini-row"><span>${x.st.Student_name||'Student'}</span><span>${x.st['Student class']||''}</span><span>${x.summary.completedThrough||''}</span><span class="due">₹${x.summary.pending.toLocaleString('en-IN')}</span></div>`).join('');}
+    const rem=document.getElementById("dashReminders"); if(rem){const arr=Array.from(latest.entries()).filter(([k,f])=>Number(f.due_fee||0)>0).slice(0,5); rem.innerHTML='<div class="mini-row head"><span>Student</span><span>Class</span><span>Month</span><span>Due</span></div>'+arr.map(([k,f])=>{const st=students.find(x=>String(x.id)===k);return `<div class="mini-row"><span>${st?st.Student_name:'Student'}</span><span>${st?st['Student class']:''}</span><span>${f.fee_month||''}</span><span class="due">₹${Number(f.due_fee||0).toLocaleString('en-IN')}</span></div>`}).join('');}
 }
 
 async function saveNotice(){
@@ -1097,6 +1096,7 @@ window.editStudent = async function(id){
     const existingPhotoUrl=await getPhotoUrl(student.Photo_url);
     photoPreview.src=existingPhotoUrl;
     photoPreview.style.display=existingPhotoUrl ? "block" : "none";
+    await prepareStudentFamily(student);
 
     document.getElementById("editModal").style.display =
         "block";
@@ -1115,6 +1115,32 @@ function closeEditForm(){
     if(photoPreview){photoPreview.removeAttribute("src");photoPreview.style.display="none";}
 }
 
+
+async function loadFamilies(){
+    const {data,error}=await supabaseClient.from("families").select("id,family_name").order("family_name",{ascending:true});
+    if(error){console.error("Family load failed:",error);return [];}
+    const families=data||[];
+    ["addFamilyId","editFamilyId"].forEach(id=>{const el=document.getElementById(id);if(!el)return;const current=el.value;el.innerHTML='<option value="">Select Existing Family</option>';families.forEach(f=>{const o=document.createElement("option");o.value=f.id;o.textContent=f.family_name;el.appendChild(o);});if(current)el.value=current;});
+    return families;
+}
+function toggleAddFamilyMode(){const m=document.getElementById("addFamilyMode").value,n=document.getElementById("addFamilyName"),i=document.getElementById("addFamilyId");n.style.display=m==="new"?"block":"none";i.style.display=m==="existing"?"block":"none";if(m!=="new")n.value="";if(m!=="existing")i.value="";}
+function toggleEditFamilyMode(){const m=document.getElementById("editFamilyMode").value,n=document.getElementById("editFamilyName"),i=document.getElementById("editFamilyId");n.style.display=m==="new"?"block":"none";i.style.display=m==="existing"?"block":"none";if(m!=="new")n.value="";if(m!=="existing")i.value="";}
+function escapeHtml(value){return String(value??"").replace(/[&<>"']/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[ch]));}
+async function loadFamilyMembers(familyId,currentId){
+    const box=document.getElementById("editFamilyMembers");if(!box)return;
+    if(!familyId){box.innerHTML='<div class="family-muted">इस student के साथ कोई family member linked नहीं है।</div>';return;}
+    const {data,error}=await supabaseClient.from("Student").select('id,Student_name,"Student class",Mobile_number').eq("family_id",Number(familyId)).order("Student_name",{ascending:true});
+    if(error){box.innerHTML='<div class="family-muted">Family members load नहीं हो सके।</div>';return;}
+    const members=(data||[]).filter(s=>String(s.id)!==String(currentId));
+    if(!members.length){box.innerHTML='<div class="family-muted">इस family में अभी कोई दूसरा student नहीं है।</div>';return;}
+    box.innerHTML='<strong style="color:#17375f">Family Members</strong>'+members.map(s=>`<div class="family-member"><div><b>${escapeHtml(s.Student_name||"")}</b><div class="family-muted">Class: ${escapeHtml(s["Student class"]||"")} · Mobile: ${escapeHtml(s.Mobile_number||"")}</div></div><button type="button" onclick="window.editStudent('${s.id}')">Open</button></div>`).join("");
+}
+async function prepareStudentFamily(student){
+    await loadFamilies();
+    const mode=document.getElementById("editFamilyMode"),id=document.getElementById("editFamilyId");
+    if(student.family_id){mode.value="existing";toggleEditFamilyMode();id.value=String(student.family_id);await loadFamilyMembers(student.family_id,student.id);}
+    else{mode.value="none";toggleEditFamilyMode();await loadFamilyMembers(null,student.id);}
+}
 
 async function saveStudentEdit(){
 
@@ -1137,15 +1163,21 @@ async function saveStudentEdit(){
 
     const address =
         document.getElementById("editAddress").value.trim();
+    const familyMode=document.getElementById("editFamilyMode").value;
+    const familyName=document.getElementById("editFamilyName").value.trim();
+    const familyIdValue=document.getElementById("editFamilyId").value;
     const photoFile=document.getElementById("editPhoto").files[0];
     const currentStudent=students.find(s=>String(s.id)===String(currentEditId));
 
     if(!name || !father || !mobile || !studentClass){
-
         alert("Please fill all required fields.");
-
         return;
     }
+    if(familyMode==="new"&&!familyName){alert("Please enter Family Name.");return;}
+    if(familyMode==="existing"&&!familyIdValue){alert("Please select an Existing Family.");return;}
+    let familyId=null;
+    if(familyMode==="new"){const {data:family,error:familyError}=await supabaseClient.from("families").insert([{family_name:familyName}]).select().single();if(familyError){alert("Family save failed: "+familyError.message);return;}familyId=family.id;}
+    else if(familyMode==="existing"){familyId=Number(familyIdValue);}
 
     if(photoFile && !photoFile.type.startsWith("image/")){ alert("Please choose an image file for the student photo."); return; }
     if(photoFile && photoFile.size > 10 * 1024 * 1024){ alert("Student photo must be 10 MB or less."); return; }
@@ -1165,7 +1197,8 @@ async function saveStudentEdit(){
             Mobile_number: mobile,
             "Student class": studentClass,
             Address: address,
-            Photo_url: photoPath || (currentStudent && currentStudent.Photo_url) || null
+            Photo_url: photoPath || (currentStudent && currentStudent.Photo_url) || null,
+            family_id: familyId
         })
         .eq("id", currentEditId);
 
@@ -2040,12 +2073,23 @@ totalMonthlyFee += monthly;
                 🖨️ Print
             </button>
 
-        </body>
+        
+
+</body>
         </html>
     `);
 
     printWindow.document.close();
 }
+let currentMonthFeesCreating = false;
+let observedDashboardMonth = "";
+
+function getCurrentFeeMonth(){
+    const now = new Date();
+    return now.getFullYear() + "-" +
+        String(now.getMonth() + 1).padStart(2, "0");
+}
+
 async function createCurrentMonthFees(){
 
     // Prevent overlapping calls in this page (for example, during login and refresh).
@@ -2472,6 +2516,17 @@ document.addEventListener("DOMContentLoaded", async function(){
         <input id="addPhoto" type="file" accept="image/*" style="display:block;width:100%;margin-top:7px;padding:10px;border:1px solid #d7e2ee;border-radius:10px;background:#fff">
       </label>
       <input id="addMonthlyFee" class="full" type="number" min="0" placeholder="Monthly Fee ₹ *">
+      <div class="family-panel">
+        <h4>👨‍👩‍👧 Family / Sibling</h4>
+        <select id="addFamilyMode" onchange="toggleAddFamilyMode()">
+          <option value="none">No Family</option>
+          <option value="new">➕ New Family</option>
+          <option value="existing">👨‍👩‍👧 Add to Existing Family</option>
+        </select>
+        <input id="addFamilyName" class="full" style="display:none;margin-top:8px" placeholder="Family Name (e.g. Kumar Family)">
+        <select id="addFamilyId" class="full" style="display:none;margin-top:8px"><option value="">Select Existing Family</option></select>
+        <div class="family-muted">हर बच्चे का Student record और Fee account अलग रहेगा।</div>
+      </div>
       <textarea id="addAddress" placeholder="Address"></textarea>
     </div>
     <div class="modal-actions"><button class="cancel-student" onclick="closeAddStudent()">Cancel</button><button class="save-student" onclick="saveNewStudent()">Save Student</button></div>
@@ -2523,6 +2578,18 @@ document.addEventListener("DOMContentLoaded", async function(){
         <label for="editPhoto" style="display:block;margin:10px 0;font-size:13px;font-weight:700;color:#526985">Change Student Photo (optional)</label>
         <img id="editPhotoPreview" alt="Current student photo" style="display:none;width:82px;height:82px;object-fit:cover;border-radius:10px;margin:6px 0 10px;border:1px solid #ccc">
         <input id="editPhoto" type="file" accept="image/*" style="width:100%;padding:10px;margin:7px 0;border:1px solid #d7e2ee;border-radius:10px">
+
+        <div class="family-panel">
+            <h4>👨‍👩‍👧 Family / Sibling</h4>
+            <select id="editFamilyMode" onchange="toggleEditFamilyMode()">
+                <option value="none">No Family</option>
+                <option value="new">➕ New Family</option>
+                <option value="existing">👨‍👩‍👧 Add to Existing Family</option>
+            </select>
+            <input id="editFamilyName" style="display:none;margin-top:8px" placeholder="Family Name">
+            <select id="editFamilyId" style="display:none;margin-top:8px"><option value="">Select Existing Family</option></select>
+            <div id="editFamilyMembers" class="family-members"></div>
+        </div>
 
         <textarea id="editAddress"
             placeholder="Address"
