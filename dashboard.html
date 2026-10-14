@@ -877,19 +877,15 @@ async function deleteStudent(id){
     if(!student) return;
 
     const confirmed = confirm(
-        "Delete " + (student.Student_name || "this student") + "?
-
-Their fee history will also be deleted. This cannot be undone."
+        "Delete " + (student.Student_name || "this student") + "? This will also delete their fee history and cannot be undone."
     );
     if(!confirmed) return;
 
     try{
-        // Remove dependent fee rows first so the Student foreign key cannot block deletion.
         const { error: feesError } = await supabaseClient
             .from("Fees")
             .delete()
             .eq("student_id", student.id);
-
         if(feesError){
             alert("Student was not deleted because their fee records could not be removed: " + feesError.message);
             return;
@@ -899,7 +895,6 @@ Their fee history will also be deleted. This cannot be undone."
             .from("Student")
             .delete()
             .eq("id", student.id);
-
         if(studentError){
             alert("Student delete failed: " + studentError.message);
             return;
