@@ -136,7 +136,12 @@
             ["profileFather"].forEach(function(id){const node=document.getElementById(id);if(node)node.textContent=data.Father_name||data["Father Name"]||data.FatherName||"—";});
             ["profileMobile"].forEach(function(id){const node=document.getElementById(id);if(node)node.textContent=data.Mobile_number||data.Mobile||data.mobile||data["Mobile Number"]||"—";});
             ["profileAdmission"].forEach(function(id){const node=document.getElementById(id);if(node)node.textContent=data.Admission_date||data.admission_date||data["Admission Date"]||"—";});
-            const photo=data.Student_photo||data.student_photo||data.Photo||data.photo||data.photo_url||data.Photo_url||data.image_url||data.profile_photo;
+            const photoPath=data.Photo_url||data.Student_photo||data.student_photo||data.Photo||data.photo||data.photo_url||data.image_url||data.profile_photo;
+            let photo=photoPath||"";
+            if(photoPath&&!/^https?:\/\//i.test(photoPath)&&!String(photoPath).startsWith("data:image/")){
+                const {data:signedPhoto,error:photoError}=await supabaseClient.storage.from("student_photos").createSignedUrl(photoPath,3600);
+                photo=!photoError&&signedPhoto?signedPhoto.signedUrl:"";
+            }
             ["heroAvatar","topAvatar","profileAvatar"].forEach(function(id){const avatar=document.getElementById(id);if(!avatar)return;const initial=(studentName.trim()[0]||"S").toUpperCase();avatar.textContent=initial;if(photo){const image=document.createElement("img");image.src=photo;image.alt=studentName;image.onerror=function(){avatar.textContent=initial;};avatar.replaceChildren(image);}});
         }
 
