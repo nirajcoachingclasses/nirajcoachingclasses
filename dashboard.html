@@ -427,7 +427,15 @@ window.supabase.createClient(
 );
 
 let students = [];
+let currentMonthFeesCreating = false;
+let observedDashboardMonth = "";
 
+function getCurrentFeeMonth(){
+    const now = new Date();
+    return now.getFullYear() + "-" +
+        String(now.getMonth() + 1).padStart(2, "0");
+}
+    
 async function checkLogin(){
 
     const {
@@ -2558,7 +2566,7 @@ document.addEventListener("DOMContentLoaded", async function(){
     sidebar.setAttribute('aria-hidden', String(mobileSidebarQuery.matches));
 
     const mainArea = document.querySelector(".main-area");
-    ["studentLoginSection","noticesSection","feesSection","pendingSection","historySection","videosSection","photosSection","pdfsSection"].forEach(function(id){
+["studentLoginSection","parentsSection","noticesSection","feesSection","pendingSection","historySection","videosSection","photosSection","pdfsSection"].forEach(function(id){
         const section = document.getElementById(id);
         if(section && section.parentElement !== mainArea){ mainArea.appendChild(section); }
     });
