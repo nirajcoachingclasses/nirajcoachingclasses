@@ -2401,7 +2401,13 @@ function fillParentStudentOptions(){
 
 async function parentFunction(body){
     const { data, error } = await supabaseClient.functions.invoke("manage-parent-account", { body });
-    if(error) throw new Error(error.message || "Parent service failed.");
+    if(error){
+        const response = error.context;
+        const details = response && typeof response.clone === "function"
+            ? await response.clone().json().catch(() => null)
+            : null;
+        throw new Error(details?.error || error.message || "Parent service failed.");
+    }
     if(!data || !data.success) throw new Error(data?.error || "Parent account operation failed.");
     return data;
 }
